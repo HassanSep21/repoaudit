@@ -20,12 +20,12 @@ RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/
 
 WORKDIR /app
 
-COPY backend/requirements.txt backend/constraints.txt .
+COPY requirements.txt constraints.txt .
 RUN pip install --no-cache-dir -r requirements.txt -c constraints.txt
 
 RUN pip install --no-cache-dir ruff radon bandit semgrep -c constraints.txt
 
-COPY backend/app ./app
+COPY app ./app
 
 EXPOSE 8000
 
