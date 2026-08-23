@@ -5,16 +5,241 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RepoAudit</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
         h1 { color: #1a1a1a; }
-        .status { padding: 1rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; }
+        .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; background: #fff; }
+        .card-header { font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; }
+        .input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .input-group input { flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        .input-group button { padding: 0.75rem 1.5rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .input-group button:disabled { background: #93c5fd; cursor: not-allowed; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
+        .status-running { background: #fef3c7; color: #92400e; }
+        .status-complete { background: #dcfce7; color: #166534; }
+        .status-partial { background: #fef3c7; color: #92400e; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .status-busy { background: #fce7f3; color: #9d174d; }
+        .progress { margin: 1rem 0; }
+        .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2563eb; transition: width 0.3s; }
+        .progress-text { font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; }
+        .score-display { font-size: 2rem; font-weight: 700; }
+        .score-ready { color: #166534; }
+        .score-needs { color: #92400e; }
+        .score-not { color: #991b1b; }
+        .verdict { font-size: 1.25rem; font-weight: 600; margin-top: 0.5rem; }
+        .pillar-card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem; }
+        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .pillar-name { font-weight: 600; }
+        .tier-badge { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 4px; background: #e5e7eb; }
+        .tier-1 { background: #dcfce7; color: #166534; }
+        .tier-2 { background: #fef3c7; color: #92400e; }
+        .finding { padding: 0.75rem; background: #f9fafb; border-radius: 4px; margin-bottom: 0.5rem; border-left: 4px solid #e5e7eb; }
+        .finding-high { border-left-color: #ef4444; }
+        .finding-medium { border-left-color: #f59e0b; }
+        .finding-low { border-left-color: #3b82f6; }
+        .finding-info { border-left-color: #6b7280; }
+        .finding-header { display: flex; gap: 0.5rem; font-size: 0.875rem; margin-bottom: 0.25rem; }
+        .finding-severity { text-transform: uppercase; font-weight: 600; font-size: 0.75rem; }
+        .finding-category { color: #6b7280; }
+        .finding-location { font-family: monospace; font-size: 0.8125rem; color: #6b7280; }
+        .error { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 6px; margin-top: 1rem; }
+        .archive-warning { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 1rem; border-radius: 6px; margin-top: 1rem; }
+        .archive-warning button { margin-left: 0.5rem; padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .hidden { display: none; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <h1>RepoAudit</h1>
-    <div class="status">
-        <strong>Status:</strong> Scaffolding complete — Phase 0 in progress
+    
+    <div class="card">
+        <div class="card-header">Analyze a Public GitHub Repository</div>
+        <div class="input-group">
+            <input type="text" id="repoUrl" placeholder="https://github.com/owner/repo" value="">
+            <button id="analyzeBtn">Analyze</button>
+        </div>
+        <div id="archiveWarning" class="archive-warning hidden">
+            <strong>Large archive files detected:</strong> This repository contains archive files that may be zip bombs.
+            <span id="archiveFiles"></span>
+            <button id="confirmBtn">Continue Anyway</button>
+        </div>
+        <div id="error" class="error hidden"></div>
     </div>
-    <p>Backend is running. Ready for Phase 0 toolchain validation.</p>
+
+    <div id="progressCard" class="card hidden">
+        <div class="card-header">Analysis Progress <span class="status-badge status-running" id="runStatus">Running</span></div>
+        <div class="progress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+            <div class="progress-text" id="progressText">Starting analysis...</div>
+        </div>
+    </div>
+
+    <div id="resultsCard" class="card hidden">
+        <div class="card-header">Analysis Complete</div>
+        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            <div>
+                <div class="score-display" id="overallScore">--</div>
+                <div class="verdict" id="overallVerdict">--</div>
+                <div style="margin-top: 0.5rem; color: #6b7280;">
+                    Pillars completed: <span id="pillarsCompleted">0/5</span>
+                </div>
+            </div>
+        </div>
+        <div id="pillarsContainer" style="margin-top: 1.5rem;"></div>
+    </div>
+
+    <script>
+        let currentRunId = null;
+        let pollInterval = null;
+        let confirmArchive = false;
+
+        document.getElementById('analyzeBtn').addEventListener('click', startAnalysis);
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            confirmArchive = true;
+            document.getElementById('archiveWarning').classList.add('hidden');
+            startAnalysis();
+        });
+
+        async function startAnalysis() {
+            const url = document.getElementById('repoUrl').value.trim();
+            if (!url) return alert('Please enter a GitHub URL');
+
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').innerHTML = '<span class="spinner"></span>Starting...';
+            hideAllCards();
+            document.getElementById('progressCard').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('archiveWarning').classList.add('hidden');
+
+            try {
+                const res = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, confirm: confirmArchive })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (res.status === 409) {
+                        showArchiveWarning(data.files);
+                        return;
+                    }
+                    throw new Error(data.detail || 'Analysis failed');
+                }
+                currentRunId = data.run_id;
+                confirmArchive = false;
+                startPolling();
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function showArchiveWarning(files) {
+            document.getElementById('archiveFiles').textContent = ' Files: ' + files.join(', ');
+            document.getElementById('archiveWarning').classList.remove('hidden');
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('analyzeBtn').textContent = 'Analyze';
+        }
+
+        function startPolling() {
+            pollInterval = setInterval(pollAnalysis, 2000);
+            pollAnalysis();
+        }
+
+        async function pollAnalysis() {
+            try {
+                const res = await fetch(`/analysis/${currentRunId}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to get status');
+
+                updateProgress(data);
+
+                if (data.status === 'complete' || data.status === 'partial' || data.status === 'failed') {
+                    clearInterval(pollInterval);
+                    showResults(data);
+                }
+            } catch (err) {
+                clearInterval(pollInterval);
+                showError(err.message);
+            }
+        }
+
+        function updateProgress(data) {
+            const completed = parseInt(data.pillars_completed.split('/')[0]);
+            const total = parseInt(data.pillars_completed.split('/')[1]);
+            const pct = (completed / total) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `Completed ${completed}/${total} pillars...`;
+
+            const statusEl = document.getElementById('runStatus');
+            statusEl.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            statusEl.className = 'status-badge status-' + data.status;
+        }
+
+        function showResults(data) {
+            document.getElementById('progressCard').classList.add('hidden');
+            document.getElementById('resultsCard').classList.remove('hidden');
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('analyzeBtn').textContent = 'Analyze Another';
+
+            const scoreEl = document.getElementById('overallScore');
+            scoreEl.textContent = data.overall_score !== null ? data.overall_score : '--';
+            scoreEl.className = 'score-display ' + 
+                (data.overall_score !== null && data.overall_score >= 80 ? 'score-ready' :
+                 data.overall_score !== null && data.overall_score >= 50 ? 'score-needs' : 'score-not');
+
+            document.getElementById('overallVerdict').textContent = data.overall_verdict || '--';
+            document.getElementById('pillarsCompleted').textContent = data.pillars_completed;
+
+            const container = document.getElementById('pillarsContainer');
+            container.innerHTML = '';
+
+            data.pillars.forEach(pillar => {
+                const card = document.createElement('div');
+                card.className = 'pillar-card';
+                card.innerHTML = `
+                    <div class="pillar-header">
+                        <span class="pillar-name">${pillar.name}</span>
+                        <span class="tier-badge tier-${pillar.tier}">Tier ${pillar.tier}</span>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <strong>Score:</strong> ${pillar.score !== null ? pillar.score : 'N/A'} | 
+                        <strong>Status:</strong> <span class="status-badge status-${pillar.status}">${pillar.status}</span>
+                    </div>
+                    <div style="color: #6b7280; margin-bottom: 0.75rem;">${pillar.summary}</div>
+                    <div>
+                        ${pillar.findings.length === 0 
+                            ? '<em style="color: #9ca3af;">No findings</em>' 
+                            : pillar.findings.map(f => `
+                                <div class="finding finding-${f.severity}">
+                                    <div class="finding-header">
+                                        <span class="finding-severity">${f.severity}</span>
+                                        <span class="finding-category">${f.category}</span>
+                                    </div>
+                                    <div>${f.message}</div>
+                                    ${f.file_path ? `<div class="finding-location">${f.file_path}${f.line ? ':' + f.line : ''}</div>` : ''}
+                                </div>
+                            `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showError(msg) {
+            document.getElementById('progressCard').classList.add('hidden');
+            document.getElementById('error').textContent = msg;
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('analyzeBtn').textContent = 'Analyze';
+        }
+
+        function hideAllCards() {
+            document.getElementById('progressCard').classList.add('hidden');
+            document.getElementById('resultsCard').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>

@@ -10,12 +10,12 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** empty but runnable skeleton, deployable from hour one.
 
-- [ ] Create folder structure from `02_ARCHITECTURE.md`
-- [ ] FastAPI app boots, serves a static "hello" page via Jinja2 (D13)
-- [ ] `Dockerfile` installs the **full toolchain** per `02_ARCHITECTURE.md`'s table — Python packages, Node 20 + npm, Trivy binary, `cloc` — not just Python. Confirm each tool's `--version` runs inside the built image before moving on.
-- [ ] `docker-compose.yml` runs it locally on one command, using local SQLite (D14)
-- [ ] `.env.example` with `GROQ_API_KEY`, `GROQ_MODEL`, `GITHUB_TOKEN`, `DATABASE_URL` (all per `05_WORKFLOW.md`)
-- [ ] Push to GitHub, connect Render, confirm the empty app deploys and responds
+- [x] Create folder structure from `02_ARCHITECTURE.md`
+- [x] FastAPI app boots, serves a static "hello" page via Jinja2 (D13)
+- [x] `Dockerfile` installs the **full toolchain** per `02_ARCHITECTURE.md`'s table — Python packages, Node 20 + npm, Trivy binary, `cloc` — not just Python. Confirm each tool's `--version` runs inside the built image before moving on.
+- [x] `docker-compose.yml` runs it locally on one command, using local SQLite (D14)
+- [x] `.env.example` with `GROQ_API_KEY`, `GROQ_MODEL`, `GITHUB_TOKEN`, `DATABASE_URL` (all per `05_WORKFLOW.md`)
+- [x] Push to GitHub, connect Render, confirm the empty app deploys and responds
 
 **DoD:** a public Render URL loads a page. Empty, but live. `docker exec` (or Render shell) into the running container and confirm `ruff --version`, `eslint --version`, `trivy --version`, `cloc --version`, `semgrep --version`, `bandit --version` all succeed — not just that they work on your Fedora machine.
 
@@ -41,13 +41,13 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** the first real vertical slice, now built on infrastructure already proven to work.
 
-- [ ] `repo_fetcher.py`: validate URL against the allow-list (Rule 17), check size + scan file listing for flagged archive files via GitHub API before cloning (D19, D20), `git clone --depth 1 --filter=blob:limit=10m`
+- [x] `repo_fetcher.py`: validate URL against the allow-list (Rule 17), check size + scan file listing for flagged archive files via GitHub API before cloning (D19, D20), `git clone --depth 1 --filter=blob:limit=10m`
 - [ ] Wire the `409`/`confirm: true` archive-warning flow into the minimal UI (D20) — a plain warning message with a "continue anyway" button is enough for this phase, doesn't need polish yet (that's Phase 6)
-- [ ] `pillars/base.py`: `Pillar` ABC, `PillarResult`, `Finding` per the data model, including the standalone CLI entry point
-- [ ] `pillars/code_evaluation.py`: Tier-1/Tier-2 detection (D3), run `ruff`+`radon` or `eslint` via subprocess (argument-list only, Rule 16), or `cloc` fallback
-- [ ] Templating: raw tool output → specific `Finding`s (file, line, message) — no raw linter JSON reaching the UI
-- [ ] Apply the shared scoring formula (D18)
-- [ ] `orchestrator.py`: runs this one pillar within the async job pattern proven in Phase 1, applies the 60s timeout, cleans up the temp clone dir in a `finally` block (Rule 19)
+- [x] `pillars/base.py`: `Pillar` ABC, `PillarResult`, `Finding` per the data model, including the standalone CLI entry point
+- [x] `pillars/code_evaluation.py`: Tier-1/Tier-2 detection (D3), run `ruff`+`radon` or `eslint` via subprocess (argument-list only, Rule 16), or `cloc` fallback
+- [x] Templating: raw tool output → specific `Finding`s (file, line, message) — no raw linter JSON reaching the UI
+- [x] Apply the shared scoring formula (D18)
+- [x] `orchestrator.py`: runs this one pillar within the async job pattern proven in Phase 1, applies the 60s timeout, cleans up the temp clone dir in a `finally` block (Rule 19)
 - [ ] Minimal UI: input field → submit → poll → show Code Evaluation score + findings
 - [ ] Persist to Postgres (not SQLite) on the deployed instance
 
