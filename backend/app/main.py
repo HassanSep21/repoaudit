@@ -140,6 +140,71 @@ async def get_analysis(run_id: int):
         }
 
 
+# TEMPORARY: Phase 1 resource ceiling check — remove after Phase 1 DoD
+@app.get("/_debug/resource-test")
+async def resource_test():
+    import subprocess
+    import tempfile
+    import os
+    import json
+    
+    results = {}
+    
+    # Create a small test repo
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_repo = os.path.join(tmpdir, "test-repo")
+        os.makedirs(test_repo)
+        
+        # Write a simple Python file
+        with open(os.path.join(test_repo, "main.py"), "w") as f:
+            f.write("def hello():\n    print('hello')\n\nhello()\n")
+        
+        # Write a simple package.json for npm audit
+        with open(os.path.join(test_repo, "package.json"), "w") as f:
+            json.dump({"name": "test", "version": "1.0.0", "dependencies": {}}, f)
+        
+        # Test Trivy (filesystem scan)
+        try:
+            import time
+            start = time.time()
+            result = subprocess.run(
+                ["trivy", "fs", "--format", "json", test_repo],
+                capture_output=True, text=True, timeout=120
+            )
+            elapsed = time.time() - start
+            results["trivy"] = {
+                "exit_code": result.returncode,
+                "elapsed_seconds": round(elapsed, 2),
+                "stdout_len": len(result.stdout),
+                "stderr": result.stderr[:200] if result.stderr else "",
+            }
+        except subprocess.TimeoutExpired:
+            results["trivy"] = {"exit_code": -1, "elapsed_seconds": 120, "error": "timeout"}
+        except Exception as e:
+            results["trivy"] = {"exit_code": -1, "error": str(e)}
+        
+        # Test Semgrep
+        try:
+            start = time.time()
+            result = subprocess.run(
+                ["semgrep", "--config=auto", "--json", test_repo],
+                capture_output=True, text=True, timeout=120
+            )
+            elapsed = time.time() - start
+            results["semgrep"] = {
+                "exit_code": result.returncode,
+                "elapsed_seconds": round(elapsed, 2),
+                "stdout_len": len(result.stdout),
+                "stderr": result.stderr[:200] if result.stderr else "",
+            }
+        except subprocess.TimeoutExpired:
+            results["semgrep"] = {"exit_code": -1, "elapsed_seconds": 120, "error": "timeout"}
+        except Exception as e:
+            results["semgrep"] = {"exit_code": -1, "error": str(e)}
+    
+    return results
+
+
 def run_fake_analysis(run_id: int):
     """Run 5 fake pillars sequentially (D16), each sleeping briefly and writing a dummy result."""
     global _current_run_id
