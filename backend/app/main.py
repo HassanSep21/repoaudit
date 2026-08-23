@@ -6,6 +6,7 @@ import os
 import uuid
 import time
 import threading
+from datetime import datetime
 from typing import Optional
 
 from app.db.session import init_db, get_db
@@ -179,9 +180,24 @@ def run_fake_analysis(run_id: int):
             run.overall_score = 85
             run.overall_verdict = "Production Ready"
             run.pillars_completed = "1/5"
-            run.completed_at = time.time()
+            run.completed_at = datetime.utcnow()
             
             db.commit()
+    except Exception as e:
+        print(f"[run_fake_analysis] ERROR for run {run_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        # Mark run as failed so it doesn't stay "running" forever
+        try:
+            with get_db() as db:
+                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+                if run:
+                    run.status = "failed"
+                    run.pillars_completed = "0/5"
+                    run.completed_at = datetime.utcnow()
+                    db.commit()
+        except Exception as e2:
+            print(f"[run_fake_analysis] Failed to mark run as failed: {e2}")
     finally:
         _analysis_lock.release()
         _current_run_id = None
