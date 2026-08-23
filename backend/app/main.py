@@ -26,20 +26,20 @@ async def health():
 @app.get("/_debug/toolchain")
 async def debug_toolchain():
     tools = [
-        ["ruff", "--version"],
-        ["radon", "--version"],
-        ["bandit", "--version"],
-        ["semgrep", "--version"],
-        ["node", "--version"],
-        ["npm", "--version"],
-        ["trivy", "--version"],
-        ["cloc", "--version"],
+        (["ruff", "--version"], 5),
+        (["radon", "--version"], 5),
+        (["bandit", "--version"], 5),
+        (["semgrep", "--version"], 30),
+        (["node", "--version"], 5),
+        (["npm", "--version"], 5),
+        (["trivy", "--version"], 5),
+        (["cloc", "--version"], 5),
     ]
     results = {}
-    for cmd in tools:
+    for cmd, timeout in tools:
         tool_name = cmd[0]
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
             results[tool_name] = {
                 "exit_code": result.returncode,
                 "stdout": result.stdout.strip(),
