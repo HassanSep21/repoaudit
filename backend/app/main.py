@@ -141,48 +141,67 @@ async def get_analysis(run_id: int):
 
 
 def run_fake_analysis(run_id: int):
-    """Fake no-op pillar that sleeps 10s then returns a dummy result."""
+    """Run 5 fake pillars sequentially (D16), each sleeping briefly and writing a dummy result."""
     global _current_run_id
+    pillars = [
+        ("Code Evaluation", 1, 85, "Tier-1 static analysis complete"),
+        ("Security", 1, 90, "Tier-1 security scan complete"),
+        ("Documentation", 1, 75, "Tier-1 docs check complete"),
+        ("Production Readiness", 1, 80, "Tier-1 prod-readiness check complete"),
+        ("Semantic Analysis", 1, 88, "LLM semantic analysis complete"),
+    ]
     try:
-        time.sleep(10)
+        for i, (name, tier, score, summary) in enumerate(pillars, 1):
+            time.sleep(3)  # Short sleep per pillar
+            
+            with get_db() as db:
+                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+                if not run:
+                    return
+                
+                # Create pillar result
+                pillar = PillarResult(
+                    run_id=run_id,
+                    pillar_name=name,
+                    status="complete",
+                    score=score,
+                    tier=tier,
+                    summary=summary,
+                )
+                db.add(pillar)
+                db.commit()
+                db.refresh(pillar)
+                
+                # Add a fake finding
+                finding = Finding(
+                    pillar_result_id=pillar.id,
+                    severity="info",
+                    category="test",
+                    message=f"Fake finding from {name}",
+                    file_path=None,
+                    line=None,
+                )
+                db.add(finding)
+                
+                # Update run progress
+                run.pillars_completed = f"{i}/5"
+                db.commit()
         
+        # All pillars done - finalize run
         with get_db() as db:
             run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
             if not run:
                 return
             
-            # Create a fake pillar result
-            pillar = PillarResult(
-                run_id=run_id,
-                pillar_name="Code Evaluation",
-                status="complete",
-                score=85,
-                tier=1,
-                summary="Fake analysis complete — no-op pillar for Phase 1 validation",
-            )
-            db.add(pillar)
-            db.commit()
-            db.refresh(pillar)
-            
-            # Add a fake finding
-            finding = Finding(
-                pillar_result_id=pillar.id,
-                severity="info",
-                category="test",
-                message="This is a fake finding from the no-op pillar",
-                file_path=None,
-                line=None,
-            )
-            db.add(finding)
-            
-            # Update run
+            # Average score across all pillars
+            avg_score = sum(p[2] for p in pillars) // len(pillars)
             run.status = "complete"
-            run.overall_score = 85
-            run.overall_verdict = "Production Ready"
-            run.pillars_completed = "1/5"
+            run.overall_score = avg_score
+            run.overall_verdict = "Production Ready" if avg_score >= 80 else "Needs Work"
+            run.pillars_completed = "5/5"
             run.completed_at = datetime.utcnow()
-            
             db.commit()
+            
     except Exception as e:
         print(f"[run_fake_analysis] ERROR for run {run_id}: {e}")
         import traceback
