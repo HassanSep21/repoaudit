@@ -20,6 +20,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
+# Bake Trivy vulnerability DB into image to avoid cold-start download on Render free tier
+RUN trivy image --download-db-only
+
 WORKDIR /app
 
 COPY requirements.txt constraints.txt .

@@ -25,11 +25,13 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** prove or disprove the platform assumptions this whole architecture depends on, before writing a single pillar. This phase exists because C1–C4 in the audit report would otherwise only surface during the original deploy phase, right before the deadline.
 
-- [ ] **Storage:** write a row to Postgres (Supabase, D14) from the deployed Render app. Force a restart (manual restart in Render's dashboard, or just wait out a 15-minute idle spin-down). Confirm the row is still there. **This is the single most important checkbox in this phase** — it's the thing that was silently wrong before the audit.
-- [ ] **Async job pattern (D15):** implement `POST /analyze` and `GET /analysis/{run_id}` against a fake no-op "pillar" that just sleeps 10 seconds and returns a dummy result. Confirm: request returns fast with a `run_id`, polling reaches `complete`, this works from the deployed Render URL (not just localhost) including through a cold start.
-- [ ] **Concurrency lock (D16):** fire two `POST /analyze` requests back to back against the deployed app. Confirm the second gets the "busy" response, not a crash or silent double-run.
-- [ ] **Resource ceiling:** run Trivy and Semgrep against a small real repo from inside the *deployed* container (not locally) and note actual memory/time cost. If Trivy's DB download is slow on a cold container, decide now between the two mitigations in `02_ARCHITECTURE.md` (bake into image vs. budget into timeout) — don't defer this decision to Phase 4.
-- [ ] **GitHub API:** confirm `GITHUB_TOKEN` is wired and the rate limit is actually the higher, authenticated one (check response headers).
+- [x] **Storage:** write a row to Postgres (Supabase, D14) from the deployed Render app. Force a restart (manual restart in Render's dashboard, or just wait out a 15-minute idle spin-down). Confirm the row is still there. **This is the single most important checkbox in this phase** — it's the thing that was silently wrong before the audit.
+- [x] **Async job pattern (D15):** implement `POST /analyze` and `GET /analysis/{run_id}` against a fake no-op "pillar" that just sleeps 10 seconds and returns a dummy result. Confirm: request returns fast with a `run_id`, polling reaches `complete`, this works from the deployed Render URL (not just localhost) including through a cold start.
+- [x] **Concurrency lock (D16):** fire two `POST /analyze` requests back to back against the deployed app. Confirm the second gets the "busy" response, not a crash or silent double-run.
+- [x] **Resource ceiling:** run Trivy and Semgrep against a small real repo from inside the *deployed* container (not locally) and note actual memory/time cost. If Trivy's DB download is slow on a cold container, decide now between the two mitigations in `02_ARCHITECTURE.md` (bake into image vs. budget into timeout) — don't defer this decision to Phase 4.
+- [x] **GitHub API:** confirm `GITHUB_TOKEN` is wired and the rate limit is actually the higher, authenticated one (check response headers).
+
+**Trivy DB mitigation decision:** Bake DB into image at build time (`trivy image --download-db-only` in Dockerfile). This avoids cold-start DB download on 0.1vCPU/512MB and is acceptable for the free tier image size limit.
 
 **DoD:** every checkbox above passed against the *deployed* Render instance, not localhost. If storage doesn't survive a forced restart, or the async pattern doesn't work through a cold start, **stop and fix the architecture before Phase 2** — don't proceed hoping it'll be fine later.
 
