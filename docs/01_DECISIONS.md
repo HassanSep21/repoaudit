@@ -30,6 +30,7 @@ Every decision below is **LOCKED** unless marked otherwise. "Locked" means: don'
 **Decision:** Semgrep and Trivy are the primary security scanners (both genuinely multi-language). `npm audit` covers JS/TS dependency vulnerabilities (Tier 1). `Bandit` covers Python-specific static analysis (Tier 1).
 **Why:** The brief names all four tools explicitly. Semgrep/Trivy being multi-language is what makes the Security pillar honor D3's "any language" scoping.
 **Re-challenged in audit:** reaffirmed, but with a new attached risk — Trivy's vulnerability database normally downloads on first run, and Semgrep's memory footprint is non-trivial. Both interact badly with the 512MB/0.1vCPU ceiling (D5) and the ephemeral filesystem (D14). Mitigation is now explicit in `02_ARCHITECTURE.md` and validated in Build Plan Phase 1.
+**Phase 0 note (Render cold-start timing):** Semgrep `--version` on Render free tier (with `SEMGREP_ENABLE_VERSION_CHECK=0`, `SEMGREP_SEND_METRICS=off`) returned in ~2–3s total endpoint time (all 8 tools). Record exact Semgrep latency from Render logs and budget it into the Security pillar's 60s timeout in Phase 4.
 **Status:** LOCKED.
 
 ### D5 — Deployment target: Render, not AWS
