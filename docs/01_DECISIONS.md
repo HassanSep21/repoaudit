@@ -98,6 +98,7 @@ Every decision below is **LOCKED** unless marked otherwise. "Locked" means: don'
 **Why:** See D7's supersession note. Confirmed against Render's docs: free-tier local filesystem changes do not survive a spin-down, which happens automatically after 15 minutes idle.
 **Trade-off accepted:** one more external dependency (Supabase) than the original "everything in one container" plan. Worth it — the alternative is a demo that loses its own data during a bathroom break.
 **Caveat to watch:** Supabase free projects can themselves pause after a period of inactivity and need a dashboard visit to resume — worth confirming the project is awake the day before the demo, same as warming Render itself. See `05_WORKFLOW.md`.
+**Phase 1 validation:** Confirmed — a test row written to Supabase Postgres from the deployed Render app survived a manual Render restart (storage persists across restarts and spin-downs).
 **Status:** LOCKED.
 
 ### D15 — Analysis is an async job, not a blocking request
