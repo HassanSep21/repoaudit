@@ -36,8 +36,6 @@ async def health():
 # D15: Async job pattern
 @app.post("/analyze")
 async def start_analysis(background_tasks: BackgroundTasks, request: Request):
-    global _current_run_id
-    
     body = await request.json()
     url = body.get("url")
     confirm = body.get("confirm", False)
@@ -50,56 +48,44 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
     if not re.match(r"^https://github\.com/[^/]+/[^/]+(\.git)?$", url):
         raise HTTPException(status_code=400, detail="Invalid GitHub URL. Must be https://github.com/owner/repo")
     
-    # Concurrency lock (D16) - acquire synchronously for atomic 429
-    if not _analysis_lock.acquire(blocking=False):
-        raise HTTPException(status_code=429, detail="Another analysis is in progress. Try again shortly.")
-    
-    try:
-        with get_db() as db:
-            # Parse owner/repo from URL
-            url_clean = url.rstrip(".git")
-            parts = url_clean.split("/")
-            owner = parts[-2]
-            name = parts[-1]
-            
-            # Create or get repo
-            repo = db.query(Repo).filter(Repo.url == url_clean).first()
-            if not repo:
-                repo = Repo(
-                    url=url_clean,
-                    owner=owner,
-                    name=name,
-                    default_branch="main",
-                    primary_languages="Unknown",
-                    size_kb=0,
-                )
-                db.add(repo)
-                db.commit()
-                db.refresh(repo)
-            
-            # Create analysis run
-            run = AnalysisRun(
-                repo_id=repo.id,
-                status="running",
-                overall_score=None,
-                overall_verdict=None,
-                pillars_completed="0/5",
+    with get_db() as db:
+        # Parse owner/repo from URL
+        url_clean = url.rstrip(".git")
+        parts = url_clean.split("/")
+        owner = parts[-2]
+        name = parts[-1]
+        
+        # Create or get repo
+        repo = db.query(Repo).filter(Repo.url == url_clean).first()
+        if not repo:
+            repo = Repo(
+                url=url_clean,
+                owner=owner,
+                name=name,
+                default_branch="main",
+                primary_languages="Unknown",
+                size_kb=0,
             )
-            db.add(run)
+            db.add(repo)
             db.commit()
-            db.refresh(run)
-            
-            _current_run_id = run.id
-            
-            # Start background task - lock is HELD, background task releases in finally
-            background_tasks.add_task(run_analysis_pipeline, run.id, url_clean)
-            
-            return {"run_id": run.id}
-    except Exception as e:
-        # Release lock ONLY if scheduling failed before handoff
-        _analysis_lock.release()
-        _current_run_id = None
-        raise HTTPException(status_code=500, detail=str(e))
+            db.refresh(repo)
+        
+        # Create analysis run
+        run = AnalysisRun(
+            repo_id=repo.id,
+            status="running",
+            overall_score=None,
+            overall_verdict=None,
+            pillars_completed="0/5",
+        )
+        db.add(run)
+        db.commit()
+        db.refresh(run)
+        
+        # Start background task - it will acquire/release lock itself
+        background_tasks.add_task(run_analysis_pipeline, run.id, url_clean)
+        
+        return {"run_id": run.id}
 
 
 @app.get("/analysis/{run_id}")

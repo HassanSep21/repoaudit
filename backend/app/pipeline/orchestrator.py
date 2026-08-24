@@ -19,8 +19,8 @@ class PipelineTimeoutError(Exception):
 def run_analysis_pipeline(run_id: int, repo_url: str):
     """Main orchestrator - runs pillars sequentially (D16).
     
-    Lock is already held by caller (main.py start_analysis). 
-    This function releases it in finally.
+    Acquires lock at start, releases in finally. Lock is held for the
+    entire pipeline duration to enforce D16 (one run at a time).
     """
     from app.pillars.code_evaluation import CodeEvaluationPillar
     from app.pipeline.repo_fetcher import fetch_repo
@@ -30,14 +30,26 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
     
     # Total pipeline timeout: 5 minutes (D9)
     PIPELINE_TIMEOUT_SECONDS = 300
+    
+    # Acquire lock NOW (D16) - fail fast if busy
+    if not _analysis_lock.acquire(blocking=False):
+        # Mark run as failed due to concurrency
+        with get_db() as db:
+            run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+            if run:
+                run.status = "failed"
+                run.pillars_completed = "0/1"
+                run.completed_at = datetime.utcnow()
+                db.commit()
+        return
+    
+    lock_acquired = True
     timeout_timer = None
     timed_out = threading.Event()
     
     def timeout_handler():
         print(f"[run_analysis_pipeline] PIPELINE TIMEOUT for run {run_id} after {PIPELINE_TIMEOUT_SECONDS}s")
         timed_out.set()
-        # This will interrupt any blocking calls in the main thread
-        # by raising an exception in the current thread
         import _thread
         _thread.interrupt_main()
     
@@ -171,12 +183,13 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
             except Exception as e:
                 print(f"[run_analysis_pipeline] Cleanup error for run {run_id}: {e}")
                 pass
-        # Release lock (acquired by caller in main.py)
-        print(f"[run_analysis_pipeline] Releasing lock for run {run_id}")
-        try:
-            _analysis_lock.release()
-            print(f"[run_analysis_pipeline] Lock released for run {run_id}")
-        except Exception as e:
-            print(f"[run_analysis_pipeline] Lock release ERROR for run {run_id}: {e}")
+        # Release lock (acquired at start of this function)
+        if lock_acquired:
+            print(f"[run_analysis_pipeline] Releasing lock for run {run_id}")
+            try:
+                _analysis_lock.release()
+                print(f"[run_analysis_pipeline] Lock released for run {run_id}")
+            except Exception as e:
+                print(f"[run_analysis_pipeline] Lock release ERROR for run {run_id}: {e}")
         _current_run_id = None
         print(f"[run_analysis_pipeline] FINALLY block completed for run {run_id}")
