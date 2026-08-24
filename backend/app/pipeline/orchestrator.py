@@ -11,20 +11,19 @@ from app.models.schema import AnalysisRun, PillarResult, Finding
 
 
 def run_analysis_pipeline(run_id: int, repo_url: str):
-    """Main orchestrator - runs pillars sequentially (D16)."""
+    """Main orchestrator - runs pillars sequentially (D16).
+    
+    Lock is already held by caller (main.py start_analysis). 
+    This function releases it in finally.
+    """
     from app.pillars.code_evaluation import CodeEvaluationPillar
     from app.pipeline.repo_fetcher import fetch_repo
     
     # Import lock from main
     from app.main import _analysis_lock, _current_run_id
     
-    lock_acquired = False
     temp_dir = None
     try:
-        # Acquire lock at start of pipeline (D16)
-        if not _analysis_lock.acquire(blocking=False):
-            raise RuntimeError("Another analysis is in progress")
-        lock_acquired = True
         _current_run_id = run_id
         
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
@@ -127,7 +126,6 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 shutil.rmtree(temp_dir, ignore_errors=True)
             except Exception:
                 pass
-        # Release lock ONLY if we acquired it
-        if lock_acquired:
-            _analysis_lock.release()
-            _current_run_id = None
+        # Release lock (acquired by caller in main.py)
+        _analysis_lock.release()
+        _current_run_id = None

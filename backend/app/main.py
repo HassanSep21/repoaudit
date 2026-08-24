@@ -50,8 +50,8 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
     if not re.match(r"^https://github\.com/[^/]+/[^/]+(\.git)?$", url):
         raise HTTPException(status_code=400, detail="Invalid GitHub URL. Must be https://github.com/owner/repo")
     
-    # Concurrency check (D16) - non-blocking check, actual lock acquired in pipeline
-    if _analysis_lock.locked():
+    # Concurrency lock (D16) - acquire synchronously for atomic 429
+    if not _analysis_lock.acquire(blocking=False):
         raise HTTPException(status_code=429, detail="Another analysis is in progress. Try again shortly.")
     
     try:
@@ -89,12 +89,16 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
             db.commit()
             db.refresh(run)
             
-            # Start background task with real orchestrator (lock acquired inside pipeline)
+            _current_run_id = run.id
+            
+            # Start background task - lock is HELD, background task releases in finally
             background_tasks.add_task(run_analysis_pipeline, run.id, url_clean)
             
             return {"run_id": run.id}
     except Exception as e:
-        # Don't release lock here - pipeline handles it
+        # Release lock ONLY if scheduling failed before handoff
+        _analysis_lock.release()
+        _current_run_id = None
         raise HTTPException(status_code=500, detail=str(e))
 
 
