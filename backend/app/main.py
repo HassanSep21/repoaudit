@@ -97,6 +97,8 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
             db.commit()
             db.refresh(run)
             
+            _current_run_id = run.id
+            
             # Start background task - it will release lock in finally
             background_tasks.add_task(run_analysis_pipeline, run.id, url_clean)
             
