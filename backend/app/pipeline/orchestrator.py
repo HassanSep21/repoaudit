@@ -121,12 +121,20 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         except Exception as e2:
             print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     finally:
+        print(f"[run_analysis_pipeline] FINALLY block entered for run {run_id}")
         # Cleanup temp directory (Rule 19)
         if temp_dir:
             try:
                 shutil.rmtree(temp_dir, ignore_errors=True)
-            except Exception:
+            except Exception as e:
+                print(f"[run_analysis_pipeline] Cleanup error for run {run_id}: {e}")
                 pass
         # Release lock (acquired by caller in main.py)
-        _analysis_lock.release()
+        print(f"[run_analysis_pipeline] Releasing lock for run {run_id}")
+        try:
+            _analysis_lock.release()
+            print(f"[run_analysis_pipeline] Lock released for run {run_id}")
+        except Exception as e:
+            print(f"[run_analysis_pipeline] Lock release ERROR for run {run_id}: {e}")
         _current_run_id = None
+        print(f"[run_analysis_pipeline] FINALLY block completed for run {run_id}")
