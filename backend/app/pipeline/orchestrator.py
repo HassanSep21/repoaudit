@@ -1,9 +1,8 @@
 from pathlib import Path
 import tempfile
 import shutil
-import subprocess
+import asyncio
 import time
-import threading
 from datetime import datetime
 from typing import Optional
 
@@ -16,7 +15,27 @@ class PipelineTimeoutError(Exception):
     pass
 
 
-def run_analysis_pipeline(run_id: int, repo_url: str):
+async def run_subprocess(cmd: list, timeout: int, cwd: Optional[str] = None) -> tuple[int, str, str]:
+    """Run subprocess asynchronously with timeout."""
+    try:
+        proc = await asyncio.wait_for(
+            asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=cwd,
+            ),
+            timeout=timeout
+        )
+        stdout, stderr = await proc.communicate()
+        return proc.returncode, stdout.decode(errors="replace"), stderr.decode(errors="replace")
+    except asyncio.TimeoutError:
+        return -1, "", f"timeout after {timeout}s"
+    except Exception as e:
+        return -1, "", str(e)
+
+
+async def run_analysis_pipeline(run_id: int, repo_url: str):
     """Main orchestrator - runs pillars sequentially (D16).
     
     Lock is already held by caller (main.py start_analysis). 
@@ -26,31 +45,18 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
     from app.pipeline.repo_fetcher import fetch_repo
     
     # Import lock from main
-    from app.main import _analysis_lock, _current_run_id
+    from app.main import _analysis_lock
     
     # Total pipeline timeout: 5 minutes (D9)
     PIPELINE_TIMEOUT_SECONDS = 300
     
-    timeout_timer = None
-    timed_out = threading.Event()
-    
-    def timeout_handler():
-        print(f"[run_analysis_pipeline] PIPELINE TIMEOUT for run {run_id} after {PIPELINE_TIMEOUT_SECONDS}s")
-        timed_out.set()
-        import _thread
-        _thread.interrupt_main()
-    
-    timeout_timer = threading.Timer(PIPELINE_TIMEOUT_SECONDS, timeout_handler)
-    timeout_timer.start()
-    
     temp_dir = None
     try:
-        global _current_run_id
-        _current_run_id = run_id
-        
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
         print(f"[run_analysis_pipeline] Starting fetch_repo for run {run_id}")
-        temp_dir = fetch_repo(repo_url)
+        temp_dir = await asyncio.get_event_loop().run_in_executor(
+            None, fetch_repo, repo_url
+        )
         print(f"[run_analysis_pipeline] fetch_repo completed for run {run_id}")
         
         # Phase 2: Run pillars sequentially
@@ -64,9 +70,6 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         scores = []
         
         for pillar in pillars:
-            if timed_out.is_set():
-                raise PipelineTimeoutError(f"Pipeline exceeded {PIPELINE_TIMEOUT_SECONDS}s timeout")
-            
             # Update run status to show which pillar is running
             with get_db() as db:
                 run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
@@ -75,7 +78,12 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                     db.commit()
             
             # Run pillar with 60s timeout (D9) - pass Path object
-            result = pillar.run(Path(temp_dir), timeout_s=60)
+            result = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(
+                    None, pillar.run, Path(temp_dir), 60
+                ),
+                timeout=60
+            )
             
             # Persist pillar result
             with get_db() as db:
@@ -132,8 +140,8 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
             run.completed_at = datetime.utcnow()
             db.commit()
             
-    except PipelineTimeoutError as e:
-        print(f"[run_analysis_pipeline] TIMEOUT for run {run_id}: {e}")
+    except asyncio.TimeoutError:
+        print(f"[run_analysis_pipeline] TIMEOUT for run {run_id}")
         # Mark run as failed
         try:
             with get_db() as db:
@@ -161,22 +169,18 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         except Exception as e2:
             print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     finally:
-        if timeout_timer:
-            timeout_timer.cancel()
         print(f"[run_analysis_pipeline] FINALLY block entered for run {run_id}")
         # Cleanup temp directory (Rule 19)
         if temp_dir:
             try:
-                shutil.rmtree(temp_dir, ignore_errors=True)
+                await asyncio.get_event_loop().run_in_executor(
+                    None, shutil.rmtree, temp_dir, True
+                )
             except Exception as e:
                 print(f"[run_analysis_pipeline] Cleanup error for run {run_id}: {e}")
                 pass
         # Release lock (acquired by caller in main.py)
         print(f"[run_analysis_pipeline] Releasing lock for run {run_id}")
-        try:
-            _analysis_lock.release()
-            print(f"[run_analysis_pipeline] Lock released for run {run_id}")
-        except Exception as e:
-            print(f"[run_analysis_pipeline] Lock release ERROR for run {run_id}: {e}")
-        _current_run_id = None
+        _analysis_lock.release()
+        print(f"[run_analysis_pipeline] Lock released for run {run_id}")
         print(f"[run_analysis_pipeline] FINALLY block completed for run {run_id}")

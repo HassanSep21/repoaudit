@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import os
-import threading
+import asyncio
 from datetime import datetime
 from typing import Optional
 
@@ -20,8 +20,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 init_db()
 
 # In-process lock for D16: only one AnalysisRun in flight at a time
-_analysis_lock = threading.Lock()
-_current_run_id: Optional[int] = None
+_analysis_lock = asyncio.Lock()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -36,7 +35,7 @@ async def health():
 
 # D15: Async job pattern
 @app.post("/analyze")
-async def start_analysis(background_tasks: BackgroundTasks, request: Request):
+async def start_analysis(request: Request):
     body = await request.json()
     url = body.get("url")
     confirm = body.get("confirm", False)
@@ -59,8 +58,11 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
         pass
     
     # Concurrency lock (D16) - acquire synchronously for atomic 429
-    if not _analysis_lock.acquire(blocking=False):
+    if _analysis_lock.locked():
         raise HTTPException(status_code=429, detail="Another analysis is in progress. Try again shortly.")
+    
+    # Acquire lock for the entire pipeline
+    await _analysis_lock.acquire()
     
     try:
         with get_db() as db:
@@ -97,10 +99,8 @@ async def start_analysis(background_tasks: BackgroundTasks, request: Request):
             db.commit()
             db.refresh(run)
             
-            _current_run_id = run.id
-            
-            # Start background task - it will release lock in finally
-            background_tasks.add_task(run_analysis_pipeline, run.id, url_clean)
+            # Start async pipeline task - it will release lock in finally
+            asyncio.create_task(run_analysis_pipeline(run.id, url_clean))
             
             return {"run_id": run.id}
     except Exception as e:
@@ -150,21 +150,22 @@ async def get_analysis(run_id: int):
 # TEMPORARY: Phase 2 debug - remove after lock/archive verified
 @app.get("/_debug/lock-status")
 async def lock_status():
-    return {
-        "locked": _analysis_lock.locked(),
-        "current_run_id": _current_run_id,
-    }
+    with get_db() as db:
+        # Source of truth: DB shows running analyses
+        running = db.query(AnalysisRun).filter(AnalysisRun.status == "running").first()
+        return {
+            "locked": _analysis_lock.locked(),
+            "running_run_id": running.id if running else None,
+            "lock_object": "asyncio.Lock",
+        }
 
 # TEMPORARY: Emergency lock release
 @app.post("/_debug/release-lock")
 async def release_lock():
-    global _current_run_id
-    try:
+    if _analysis_lock.locked():
         _analysis_lock.release()
-        _current_run_id = None
         return {"released": True, "locked": _analysis_lock.locked()}
-    except RuntimeError:
-        return {"released": False, "locked": _analysis_lock.locked(), "error": "lock not held"}
+    return {"released": False, "locked": _analysis_lock.locked(), "error": "lock not held"}
 
 
 if __name__ == "__main__":
