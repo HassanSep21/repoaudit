@@ -101,7 +101,7 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 run.overall_verdict = "Needs Work"
             else:
                 run.overall_verdict = "Not Ready"
-            run.pillars_completed = f"{total_pillars}/5"
+            run.pillars_completed = f"{total_pillars}/{total_pillars}"
             run.completed_at = datetime.utcnow()
             db.commit()
             
@@ -115,7 +115,7 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
                 if run:
                     run.status = "failed"
-                    run.pillars_completed = "0/5"
+                    run.pillars_completed = f"0/{total_pillars}"
                     run.completed_at = datetime.utcnow()
                     db.commit()
         except Exception as e2:
