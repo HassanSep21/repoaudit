@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import asyncio
 import time
+import functools
 from datetime import datetime
 from typing import Optional
 
@@ -50,6 +51,15 @@ async def run_analysis_pipeline(run_id: int, repo_url: str):
     # Total pipeline timeout: 5 minutes (D9)
     PIPELINE_TIMEOUT_SECONDS = 300
     
+    # Define pillars and total_pillars upfront so except handlers can reference them
+    pillars = [
+        CodeEvaluationPillar(),
+        # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
+    ]
+    total_pillars = len(pillars)
+    completed = 0
+    scores = []
+    
     temp_dir = None
     try:
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
@@ -60,14 +70,6 @@ async def run_analysis_pipeline(run_id: int, repo_url: str):
         print(f"[run_analysis_pipeline] fetch_repo completed for run {run_id}")
         
         # Phase 2: Run pillars sequentially
-        pillars = [
-            CodeEvaluationPillar(),
-            # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
-        ]
-        
-        total_pillars = len(pillars)
-        completed = 0
-        scores = []
         
         for pillar in pillars:
             # Update run status to show which pillar is running
@@ -80,7 +82,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str):
             # Run pillar with 60s timeout (D9) - pass Path object
             result = await asyncio.wait_for(
                 asyncio.get_event_loop().run_in_executor(
-                    None, pillar.run, Path(temp_dir), 60
+                    None, functools.partial(pillar.run, Path(temp_dir), timeout_s=60)
                 ),
                 timeout=60
             )
