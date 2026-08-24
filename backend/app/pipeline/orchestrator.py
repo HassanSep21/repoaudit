@@ -45,6 +45,7 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
     
     temp_dir = None
     try:
+        global _current_run_id
         _current_run_id = run_id
         
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
