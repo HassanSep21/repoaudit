@@ -155,6 +155,17 @@ async def lock_status():
         "current_run_id": _current_run_id,
     }
 
+# TEMPORARY: Emergency lock release
+@app.post("/_debug/release-lock")
+async def release_lock():
+    global _current_run_id
+    try:
+        _analysis_lock.release()
+        _current_run_id = None
+        return {"released": True, "locked": _analysis_lock.locked()}
+    except RuntimeError:
+        return {"released": False, "locked": _analysis_lock.locked(), "error": "lock not held"}
+
 
 if __name__ == "__main__":
     import uvicorn
