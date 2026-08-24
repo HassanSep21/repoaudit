@@ -18,8 +18,15 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
     # Import lock from main
     from app.main import _analysis_lock, _current_run_id
     
+    lock_acquired = False
     temp_dir = None
     try:
+        # Acquire lock at start of pipeline (D16)
+        if not _analysis_lock.acquire(blocking=False):
+            raise RuntimeError("Another analysis is in progress")
+        lock_acquired = True
+        _current_run_id = run_id
+        
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
         temp_dir = fetch_repo(repo_url)
         
@@ -40,8 +47,8 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                     run.pillars_completed = f"{completed}/5"
                     db.commit()
             
-            # Run pillar with 60s timeout (D9)
-            result = pillar.run(temp_dir, timeout_s=60)
+            # Run pillar with 60s timeout (D9) - pass Path object
+            result = pillar.run(Path(temp_dir), timeout_s=60)
             
             # Persist pillar result
             with get_db() as db:
@@ -120,5 +127,7 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 shutil.rmtree(temp_dir, ignore_errors=True)
             except Exception:
                 pass
-        _analysis_lock.release()
-        _current_run_id = None
+        # Release lock ONLY if we acquired it
+        if lock_acquired:
+            _analysis_lock.release()
+            _current_run_id = None
