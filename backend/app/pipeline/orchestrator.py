@@ -181,8 +181,14 @@ async def run_analysis_pipeline(run_id: int, repo_url: str):
             except Exception as e:
                 print(f"[run_analysis_pipeline] Cleanup error for run {run_id}: {e}")
                 pass
-        # Release lock (acquired by caller in main.py)
+        # Release lock (acquired by caller in main.py) - MUST happen even if other cleanup fails
         print(f"[run_analysis_pipeline] Releasing lock for run {run_id}")
-        _analysis_lock.release()
-        print(f"[run_analysis_pipeline] Lock released for run {run_id}")
+        try:
+            _analysis_lock.release()
+            print(f"[run_analysis_pipeline] Lock released for run {run_id}")
+        except RuntimeError as e:
+            # Lock not held - already released or never acquired
+            print(f"[run_analysis_pipeline] Lock release error (likely already released): {e}")
+        except Exception as e:
+            print(f"[run_analysis_pipeline] Lock release ERROR for run {run_id}: {e}")
         print(f"[run_analysis_pipeline] FINALLY block completed for run {run_id}")
