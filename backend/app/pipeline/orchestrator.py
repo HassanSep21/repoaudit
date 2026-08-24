@@ -3,11 +3,17 @@ import tempfile
 import shutil
 import subprocess
 import time
+import threading
 from datetime import datetime
 from typing import Optional
 
 from app.db.session import get_db
 from app.models.schema import AnalysisRun, PillarResult, Finding
+
+
+class PipelineTimeoutError(Exception):
+    """Raised when the pipeline exceeds its total timeout."""
+    pass
 
 
 def run_analysis_pipeline(run_id: int, repo_url: str):
@@ -22,12 +28,30 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
     # Import lock from main
     from app.main import _analysis_lock, _current_run_id
     
+    # Total pipeline timeout: 5 minutes (D9)
+    PIPELINE_TIMEOUT_SECONDS = 300
+    timeout_timer = None
+    timed_out = threading.Event()
+    
+    def timeout_handler():
+        print(f"[run_analysis_pipeline] PIPELINE TIMEOUT for run {run_id} after {PIPELINE_TIMEOUT_SECONDS}s")
+        timed_out.set()
+        # This will interrupt any blocking calls in the main thread
+        # by raising an exception in the current thread
+        import _thread
+        _thread.interrupt_main()
+    
+    timeout_timer = threading.Timer(PIPELINE_TIMEOUT_SECONDS, timeout_handler)
+    timeout_timer.start()
+    
     temp_dir = None
     try:
         _current_run_id = run_id
         
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
+        print(f"[run_analysis_pipeline] Starting fetch_repo for run {run_id}")
         temp_dir = fetch_repo(repo_url)
+        print(f"[run_analysis_pipeline] fetch_repo completed for run {run_id}")
         
         # Phase 2: Run pillars sequentially
         pillars = [
@@ -40,6 +64,9 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         scores = []
         
         for pillar in pillars:
+            if timed_out.is_set():
+                raise PipelineTimeoutError(f"Pipeline exceeded {PIPELINE_TIMEOUT_SECONDS}s timeout")
+            
             # Update run status to show which pillar is running
             with get_db() as db:
                 run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
@@ -105,6 +132,19 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
             run.completed_at = datetime.utcnow()
             db.commit()
             
+    except PipelineTimeoutError as e:
+        print(f"[run_analysis_pipeline] TIMEOUT for run {run_id}: {e}")
+        # Mark run as failed
+        try:
+            with get_db() as db:
+                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+                if run:
+                    run.status = "failed"
+                    run.pillars_completed = f"0/{total_pillars}"
+                    run.completed_at = datetime.utcnow()
+                    db.commit()
+        except Exception as e2:
+            print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     except Exception as e:
         print(f"[run_analysis_pipeline] ERROR for run {run_id}: {e}")
         import traceback
@@ -121,6 +161,8 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         except Exception as e2:
             print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     finally:
+        if timeout_timer:
+            timeout_timer.cancel()
         print(f"[run_analysis_pipeline] FINALLY block entered for run {run_id}")
         # Cleanup temp directory (Rule 19)
         if temp_dir:
