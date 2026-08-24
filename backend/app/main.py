@@ -148,27 +148,6 @@ async def get_analysis(run_id: int):
         }
 
 
-# TEMPORARY: Phase 2 debug - remove after lock/archive verified
-@app.get("/_debug/lock-status")
-async def lock_status():
-    with get_db() as db:
-        # Source of truth: DB shows running analyses
-        running = db.query(AnalysisRun).filter(AnalysisRun.status == "running").first()
-        return {
-            "locked": _analysis_lock.locked(),
-            "running_run_id": running.id if running else None,
-            "lock_object": "asyncio.Lock",
-        }
-
-# TEMPORARY: Emergency lock release
-@app.post("/_debug/release-lock")
-async def release_lock():
-    if _analysis_lock.locked():
-        _analysis_lock.release()
-        return {"released": True, "locked": _analysis_lock.locked()}
-    return {"released": False, "locked": _analysis_lock.locked(), "error": "lock not held"}
-
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
