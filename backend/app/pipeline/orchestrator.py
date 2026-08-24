@@ -30,22 +30,22 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         temp_dir = fetch_repo(repo_url)
         
         # Phase 2: Run pillars sequentially
-pillars = [
-        CodeEvaluationPillar(),
-        # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
-    ]
-    
-    total_pillars = len(pillars)
-    completed = 0
-    scores = []
-    
-    for pillar in pillars:
-        # Update run status to show which pillar is running
-        with get_db() as db:
-            run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
-            if run:
-                run.pillars_completed = f"{completed}/{total_pillars}"
-                db.commit()
+        pillars = [
+            CodeEvaluationPillar(),
+            # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
+        ]
+        
+        total_pillars = len(pillars)
+        completed = 0
+        scores = []
+        
+        for pillar in pillars:
+            # Update run status to show which pillar is running
+            with get_db() as db:
+                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+                if run:
+                    run.pillars_completed = f"{completed}/{total_pillars}"
+                    db.commit()
             
             # Run pillar with 60s timeout (D9) - pass Path object
             result = pillar.run(Path(temp_dir), timeout_s=60)
@@ -88,7 +88,6 @@ pillars = [
                 db.commit()
         
         # Finalize run
-        total_pillars = len(pillars)
         with get_db() as db:
             run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
             if not run:
