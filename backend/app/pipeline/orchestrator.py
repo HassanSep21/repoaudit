@@ -30,21 +30,22 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
         temp_dir = fetch_repo(repo_url)
         
         # Phase 2: Run pillars sequentially
-        pillars = [
-            CodeEvaluationPillar(),
-            # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
-        ]
-        
-        completed = 0
-        scores = []
-        
-        for pillar in pillars:
-            # Update run status to show which pillar is running
-            with get_db() as db:
-                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
-                if run:
-                    run.pillars_completed = f"{completed}/5"
-                    db.commit()
+pillars = [
+        CodeEvaluationPillar(),
+        # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
+    ]
+    
+    total_pillars = len(pillars)
+    completed = 0
+    scores = []
+    
+    for pillar in pillars:
+        # Update run status to show which pillar is running
+        with get_db() as db:
+            run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+            if run:
+                run.pillars_completed = f"{completed}/{total_pillars}"
+                db.commit()
             
             # Run pillar with 60s timeout (D9) - pass Path object
             result = pillar.run(Path(temp_dir), timeout_s=60)
@@ -81,12 +82,13 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 
                 # Update progress
                 completed += 1
-                run.pillars_completed = f"{completed}/5"
+                run.pillars_completed = f"{completed}/{total_pillars}"
                 if result.score is not None:
                     scores.append(result.score)
                 db.commit()
         
         # Finalize run
+        total_pillars = len(pillars)
         with get_db() as db:
             run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
             if not run:
@@ -100,7 +102,7 @@ def run_analysis_pipeline(run_id: int, repo_url: str):
                 run.overall_verdict = "Needs Work"
             else:
                 run.overall_verdict = "Not Ready"
-            run.pillars_completed = "5/5"
+            run.pillars_completed = f"{total_pillars}/5"
             run.completed_at = datetime.utcnow()
             db.commit()
             
