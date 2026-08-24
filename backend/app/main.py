@@ -140,11 +140,6 @@ async def get_analysis(run_id: int):
         }
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
 # TEMPORARY: Phase 2 debug - remove after lock verified
 @app.get("/_debug/lock-status")
 async def lock_status():
@@ -152,3 +147,8 @@ async def lock_status():
         "locked": _analysis_lock.locked(),
         "current_run_id": _current_run_id,
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
