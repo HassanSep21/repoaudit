@@ -53,10 +53,13 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
         f"{GITHUB_API_BASE}/repos/{owner}/{name}/git/trees/{default_branch}?recursive=1",
         headers=headers, timeout=10
     )
-    if tree_resp.status_code != 200:
+    if tree_resp.status_code == 409:
+        # Empty repo - GitHub returns 409 for empty repos
+        tree_data = []
+    elif tree_resp.status_code != 200:
         raise RuntimeError(f"Failed to fetch repo tree: {tree_resp.status_code}")
-    
-    tree_data = tree_resp.json().get("tree", [])
+    else:
+        tree_data = tree_resp.json().get("tree", [])
     
     archive_files = []
     for item in tree_data:
