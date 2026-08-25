@@ -11,5 +11,6 @@ services:
       - .env
     environment:
       - DATABASE_URL=sqlite:///./repoaudit.db
+      - PILLAR_TIMEOUT=1
     volumes:
       - ./backend/app:/app/app

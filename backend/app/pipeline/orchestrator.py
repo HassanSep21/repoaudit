@@ -79,12 +79,14 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                     run.pillars_completed = f"{completed}/{total_pillars}"
                     db.commit()
             
-            # Run pillar with 60s timeout (D9) - pass Path object
+            # Run pillar with configurable timeout (D9) - pass Path object
+            import os
+            pillar_timeout = int(os.getenv("PILLAR_TIMEOUT", "60"))
             result = await asyncio.wait_for(
                 asyncio.get_event_loop().run_in_executor(
-                    None, functools.partial(pillar.run, Path(temp_dir), timeout_s=60)
+                    None, functools.partial(pillar.run, Path(temp_dir), timeout_s=pillar_timeout)
                 ),
-                timeout=60
+                timeout=pillar_timeout
             )
             
             # Persist pillar result
