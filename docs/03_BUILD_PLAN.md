@@ -42,14 +42,14 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 **Goal:** the first real vertical slice, now built on infrastructure already proven to work.
 
 - [x] `repo_fetcher.py`: validate URL against the allow-list (Rule 17), check size + scan file listing for flagged archive files via GitHub API before cloning (D19, D20), `git clone --depth 1 --filter=blob:limit=10m`
-- [ ] Wire the `409`/`confirm: true` archive-warning flow into the minimal UI (D20) — a plain warning message with a "continue anyway" button is enough for this phase, doesn't need polish yet (that's Phase 6)
+- [x] Wire the `409`/`confirm: true` archive-warning flow into the minimal UI (D20) — a plain warning message with a "continue anyway" button is enough for this phase, doesn't need polish yet (that's Phase 6)
 - [x] `pillars/base.py`: `Pillar` ABC, `PillarResult`, `Finding` per the data model, including the standalone CLI entry point
 - [x] `pillars/code_evaluation.py`: Tier-1/Tier-2 detection (D3), run `ruff`+`radon` or `eslint` via subprocess (argument-list only, Rule 16), or `cloc` fallback
 - [x] Templating: raw tool output → specific `Finding`s (file, line, message) — no raw linter JSON reaching the UI
 - [x] Apply the shared scoring formula (D18)
 - [x] `orchestrator.py`: runs this one pillar within the async job pattern proven in Phase 1, applies the 60s timeout, cleans up the temp clone dir in a `finally` block (Rule 19)
-- [ ] Minimal UI: input field → submit → poll → show Code Evaluation score + findings
-- [ ] Persist to Postgres (not SQLite) on the deployed instance
+- [x] Minimal UI: input field → submit → poll → show Code Evaluation score + findings
+- [x] Persist to Postgres (not SQLite) on the deployed instance
 
 **DoD:** paste a real public repo URL on the **deployed Render URL**, get a real Code Evaluation score with specific findings. Run it twice on two different repos (one clean-ish, one with real issues) — the findings and scores must visibly differ, not just the repo name in a template. This is the differentiation check the original DoD lacked.
 

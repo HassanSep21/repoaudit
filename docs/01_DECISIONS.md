@@ -134,8 +134,15 @@ Every decision below is **LOCKED** unless marked otherwise. "Locked" means: don'
 
 ### D20 — Archive/zip-bomb handling: warn and ask, don't silently block or silently proceed
 **Decision:** As part of the existing pre-clone size check (D19), also inspect the repo's file listing (via GitHub API) for archive files (`.zip`, `.tar.gz`, `.7z`, `.rar`, etc.) above a small size threshold (e.g. 5MB). If any are found and the request hasn't already opted in, `POST /analyze` returns `409` with the reason and the list of flagged files instead of starting analysis. The frontend shows this as a plain warning with a "continue anyway" option that resubmits with `confirm: true`.
+
 **Why:** The original audit accepted zip-bomb-style repos as a known limitation covered only by the size/timeout backstops. That's weaker than necessary for something this cheap to fix properly — the size-precheck step already exists (D19), so extending it to flag archive files is a small addition to code that's being written anyway, not a new subsystem. Putting the decision in front of the user (rather than silently blocking or silently proceeding) is also just more honest about what the tool does and doesn't protect against.
+
 **Scope:** this catches "a repo contains a suspicious archive," not "we safely detonate and inspect the archive's actual contents" — RepoAudit still never extracts or executes anything from a cloned repo (Rule 15 stands). It's a warning based on file listing, not a scan of what's inside the archive.
+
+**Implementation note:** Archive check uses recursive tree listing (`GET /repos/{owner}/{repo}/git/trees/{sha}?recursive=1`) to scan the entire default branch, not just the root directory.
+
+**Verification status:** Implemented (recursive tree listing), not yet verified end-to-end with a real 409 trigger. Verify before Phase 4 widens to Security pillar, since D20's archive check reuses this same pre-clone step.
+
 **Status:** LOCKED.
 
 ### D21 — `GITHUB_TOKEN` is effectively required, not optional
