@@ -8,7 +8,7 @@ from app.models.schema import Repo
 
 GITHUB_API_BASE = "https://api.github.com"
 MAX_REPO_SIZE_KB = 500 * 1024  # 500MB
-MAX_ARCHIVE_SIZE_KB = 5 * 1024  # 5MB
+MAX_ARCHIVE_SIZE_KB = 1  # 1KB for testing 409
 ARCHIVE_EXTENSIONS = {".zip", ".tar.gz", ".tgz", ".7z", ".rar", ".tar.bz2", ".tar.xz"}
 
 
@@ -56,13 +56,20 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
     if tree_resp.status_code != 200:
         raise RuntimeError(f"Failed to fetch repo tree: {tree_resp.status_code}")
     
+    tree_data = tree_resp.json().get("tree", [])
+    print(f"[DEBUG] Tree entries: {len(tree_data)}")  # Debug logging
+    for item in tree_data[:10]:  # Log first 10 entries
+        print(f"[DEBUG] Tree entry: type={item.get('type')}, path={item.get('path')}, size={item.get('size')}")
+    
     archive_files = []
-    for item in tree_resp.json().get("tree", []):
+    for item in tree_data:
         if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
             for ext in ARCHIVE_EXTENSIONS:
                 if item["path"].endswith(ext):
                     archive_files.append(f"{item['path']} ({item['size']} KB)")
                     break
+    
+    print(f"[DEBUG] Archive files found: {archive_files}")  # Debug logging
     
     if archive_files and not confirm:
         raise ArchiveFileError(archive_files)
