@@ -36,7 +36,7 @@ async def run_subprocess(cmd: list, timeout: int, cwd: Optional[str] = None) -> 
         return -1, "", str(e)
 
 
-async def run_analysis_pipeline(run_id: int, repo_url: str):
+async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = False):
     """Main orchestrator - runs pillars sequentially (D16).
     
     Lock is already held by caller (main.py start_analysis). 
@@ -65,7 +65,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str):
         # Phase 1: Fetch repo with size/archive checks (D19, D20)
         print(f"[run_analysis_pipeline] Starting fetch_repo for run {run_id}")
         temp_dir = await asyncio.get_event_loop().run_in_executor(
-            None, fetch_repo, repo_url
+            None, fetch_repo, repo_url, confirm
         )
         print(f"[run_analysis_pipeline] fetch_repo completed for run {run_id}")
         

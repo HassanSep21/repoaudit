@@ -100,7 +100,7 @@ async def start_analysis(request: Request):
             db.refresh(run)
             
             # Start async pipeline task with lock release callback
-            task = asyncio.create_task(run_analysis_pipeline(run.id, url_clean))
+            task = asyncio.create_task(run_analysis_pipeline(run.id, url_clean, confirm))
             task.add_done_callback(lambda t: _analysis_lock.release() if _analysis_lock.locked() else None)
             
             return {"run_id": run.id}

@@ -59,9 +59,9 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** prove the pipeline survives bad input before widening to more pillars.
 
-- [ ] Test against: a tiny clean repo, a large repo (near the 500MB edge, and one that exceeds it — confirm the pre-clone rejection actually fires per D19), a malformed/broken repo (bad URL, empty repo), and a repo with non-UTF8 file content (confirm tolerant decoding, Rule 20, doesn't crash the pillar)
-- [ ] Cause a timeout on purpose (e.g. temporarily lower the timeout to 1s) and confirm graceful degradation, not a crash
-- [ ] Confirm a pillar failure produces a `partial`/`failed` result with a stated reason, not a 500 error
+- [x] Test against: a tiny clean repo, a large repo (near the 500MB edge, and one that exceeds it — confirm the pre-clone rejection actually fires per D19), a malformed/broken repo (bad URL, empty repo), and a repo with non-UTF8 file content (confirm tolerant decoding, Rule 20, doesn't crash the pillar)
+- [x] Cause a timeout on purpose (e.g. temporarily lower the timeout to 1s) and confirm graceful degradation, not a crash
+- [x] Confirm a pillar failure produces a `partial`/`failed` result with a stated reason, not a 500 error
 
 **DoD:** all four test repos above (large-over-limit, malformed, empty, non-UTF8) return *some* report or a clear rejection message — none of them crash the app or hang past the timeout.
 
