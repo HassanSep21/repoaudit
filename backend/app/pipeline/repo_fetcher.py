@@ -47,19 +47,25 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
     if size_kb > MAX_REPO_SIZE_KB:
         raise RuntimeError(f"Repository too large ({size_kb} KB > {MAX_REPO_SIZE_KB} KB limit)")
     
-    # Check for large archive files (D20)
-    contents_resp = requests.get(f"{GITHUB_API_BASE}/repos/{owner}/{name}/contents", headers=headers, timeout=10)
-    if contents_resp.status_code == 200:
-        archive_files = []
-        for item in contents_resp.json():
-            if item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
-                for ext in ARCHIVE_EXTENSIONS:
-                    if item["name"].endswith(ext):
-                        archive_files.append(f"{item['name']} ({item['size']} KB)")
-                        break
-        
-        if archive_files and not confirm:
-            raise ArchiveFileError(archive_files)
+    # Check for large archive files (D20) - use recursive tree listing
+    default_branch = repo_data.get("default_branch", "main")
+    tree_resp = requests.get(
+        f"{GITHUB_API_BASE}/repos/{owner}/{name}/git/trees/{default_branch}?recursive=1",
+        headers=headers, timeout=10
+    )
+    if tree_resp.status_code != 200:
+        raise RuntimeError(f"Failed to fetch repo tree: {tree_resp.status_code}")
+    
+    archive_files = []
+    for item in tree_resp.json().get("tree", []):
+        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
+            for ext in ARCHIVE_EXTENSIONS:
+                if item["path"].endswith(ext):
+                    archive_files.append(f"{item['path']} ({item['size']} KB)")
+                    break
+    
+    if archive_files and not confirm:
+        raise ArchiveFileError(archive_files)
     
     # Clone with depth=1 and blob limit (D19)
     temp_dir = tempfile.mkdtemp(prefix="repoaudit-")
@@ -105,16 +111,22 @@ def precheck_repo(repo_url: str, confirm: bool = False) -> None:
     if size_kb > MAX_REPO_SIZE_KB:
         raise RuntimeError(f"Repository too large ({size_kb} KB > {MAX_REPO_SIZE_KB} KB limit)")
     
-    # Check for large archive files (D20)
-    contents_resp = requests.get(f"{GITHUB_API_BASE}/repos/{owner}/{name}/contents", headers=headers, timeout=10)
-    if contents_resp.status_code == 200:
-        archive_files = []
-        for item in contents_resp.json():
-            if item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
-                for ext in ARCHIVE_EXTENSIONS:
-                    if item["name"].endswith(ext):
-                        archive_files.append(f"{item['name']} ({item['size']} KB)")
-                        break
-        
-        if archive_files and not confirm:
-            raise ArchiveFileError(archive_files)
+    # Check for large archive files (D20) - use recursive tree listing
+    default_branch = repo_data.get("default_branch", "main")
+    tree_resp = requests.get(
+        f"{GITHUB_API_BASE}/repos/{owner}/{name}/git/trees/{default_branch}?recursive=1",
+        headers=headers, timeout=10
+    )
+    if tree_resp.status_code != 200:
+        raise RuntimeError(f"Failed to fetch repo tree: {tree_resp.status_code}")
+    
+    archive_files = []
+    for item in tree_resp.json().get("tree", []):
+        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
+            for ext in ARCHIVE_EXTENSIONS:
+                if item["path"].endswith(ext):
+                    archive_files.append(f"{item['path']} ({item['size']} KB)")
+                    break
+    
+    if archive_files and not confirm:
+        raise ArchiveFileError(archive_files)
