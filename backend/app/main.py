@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import os
 import asyncio
+import json
 from datetime import datetime
 from typing import Optional
 
@@ -146,6 +147,112 @@ async def get_analysis(run_id: int):
             "pillars_completed": run.pillars_completed,
             "pillars": pillars_data,
         }
+
+
+# D8: Export endpoints
+@app.get("/analysis/{run_id}/export.json")
+async def export_json(run_id: int):
+    with get_db() as db:
+        run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Analysis run not found")
+        
+        # Get repo
+        repo = db.query(Repo).filter(Repo.id == run.repo_id).first()
+        
+        # Get pillar results
+        pillars_data = []
+        for pr in run.pillar_results:
+            findings = [
+                {
+                    "severity": f.severity,
+                    "category": f.category,
+                    "message": f.message,
+                    "file_path": f.file_path,
+                    "line": f.line,
+                }
+                for f in pr.findings
+            ]
+            pillars_data.append({
+                "name": pr.pillar_name,
+                "status": pr.status,
+                "tier": pr.tier,
+                "score": pr.score,
+                "summary": pr.summary,
+                "findings": findings,
+            })
+        
+        export_data = {
+            "run": {
+                "id": run.id,
+                "repo_id": run.repo_id,
+                "status": run.status,
+                "started_at": run.started_at.isoformat() if run.started_at else None,
+                "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+                "overall_score": run.overall_score,
+                "overall_verdict": run.overall_verdict,
+                "pillars_completed": run.pillars_completed,
+            },
+            "repo": {
+                "url": repo.url if repo else None,
+                "owner": repo.owner if repo else None,
+                "name": repo.name if repo else None,
+                "default_branch": repo.default_branch if repo else None,
+                "primary_languages": repo.primary_languages if repo else None,
+                "size_kb": repo.size_kb if repo else None,
+            },
+            "pillars": pillars_data,
+            "exported_at": datetime.utcnow().isoformat(),
+        }
+        
+        return JSONResponse(
+            content=export_data,
+            headers={"Content-Disposition": f"attachment; filename=repoaudit-{run_id}.json"}
+        )
+
+
+@app.get("/analysis/{run_id}/export.html")
+async def export_html(run_id: int, request: Request):
+    with get_db() as db:
+        run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Analysis run not found")
+        
+        # Get repo
+        repo = db.query(Repo).filter(Repo.id == run.repo_id).first()
+        
+        # Get pillar results
+        pillars_data = []
+        for pr in run.pillar_results:
+            findings = [
+                {
+                    "severity": f.severity,
+                    "category": f.category,
+                    "message": f.message,
+                    "file_path": f.file_path,
+                    "line": f.line,
+                }
+                for f in pr.findings
+            ]
+            pillars_data.append({
+                "name": pr.pillar_name,
+                "status": pr.status,
+                "tier": pr.tier,
+                "score": pr.score,
+                "summary": pr.summary,
+                "findings": findings,
+            })
+        
+        return templates.TemplateResponse(
+            "export.html",
+            {
+                "request": request,
+                "run": run,
+                "repo": repo,
+                "pillars": pillars_data,
+            },
+            headers={"Content-Disposition": f"attachment; filename=repoaudit-{run_id}.html"}
+        )
 
 
 if __name__ == "__main__":

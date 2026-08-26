@@ -43,6 +43,10 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
     This function releases it in finally.
     """
     from app.pillars.code_evaluation import CodeEvaluationPillar
+    from app.pillars.security import SecurityPillar
+    from app.pillars.documentation import DocumentationPillar
+    from app.pillars.production_readiness import ProductionReadinessPillar
+    from app.pillars.semantic_analysis import SemanticAnalysisPillar
     from app.pipeline.repo_fetcher import fetch_repo
     
     # Import lock from main
@@ -54,7 +58,10 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
     # Define pillars and total_pillars upfront so except handlers can reference them
     pillars = [
         CodeEvaluationPillar(),
-        # TODO: Add SecurityPillar, DocumentationPillar, ProductionReadinessPillar, SemanticAnalysisPillar
+        SecurityPillar(),
+        DocumentationPillar(),
+        ProductionReadinessPillar(),
+        SemanticAnalysisPillar(),
     ]
     total_pillars = len(pillars)
     completed = 0
@@ -71,6 +78,17 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
         
         # Phase 2: Run pillars sequentially
         
+        # Per-pillar timeouts (D9): deterministic=60s, Semantic Analysis=90s
+        import os
+        default_timeout = int(os.getenv("PILLAR_TIMEOUT", "60"))
+        pillar_timeouts = {
+            "Code Evaluation": default_timeout,
+            "Security": default_timeout,
+            "Documentation": default_timeout,
+            "Production Readiness": default_timeout,
+            "Semantic Analysis": 90,
+        }
+        
         for pillar in pillars:
             # Update run status to show which pillar is running
             with get_db() as db:
@@ -79,9 +97,8 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                     run.pillars_completed = f"{completed}/{total_pillars}"
                     db.commit()
             
-            # Run pillar with configurable timeout (D9) - pass Path object
-            import os
-            pillar_timeout = int(os.getenv("PILLAR_TIMEOUT", "60"))
+            # Run pillar with appropriate timeout
+            pillar_timeout = pillar_timeouts.get(pillar.name, default_timeout)
             result = await asyncio.wait_for(
                 asyncio.get_event_loop().run_in_executor(
                     None, functools.partial(pillar.run, Path(temp_dir), timeout_s=pillar_timeout)

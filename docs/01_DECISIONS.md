@@ -12,6 +12,8 @@ Every decision below is **LOCKED** unless marked otherwise. "Locked" means: don'
 **Re-challenged in audit:** reaffirmed, no change. The exact model string must be a single env-var default (not hardcoded in multiple files) so a future Groq model deprecation is a one-line fix — see D17.
 **Status:** LOCKED.
 
+> **2026-08-26 Note:** Default model changed from `llama-3.3-70b-versatile` to `openai/gpt-oss-120b` (hosted on Groq free tier). Reason: the 70B model was decommissioned/unavailable on the free tier at deploy time. `openai/gpt-oss-120b` provides a 131k context window (vs ~8k on the 70B model) which is necessary for the Semantic Analysis prompt to include repo structure + key files without truncation. Confirmed available on Groq free tier via `/v1/models` API (active=true, pricing listed).
+
 ### D2 — Pillar split: Option A (LLM only where structurally required)
 **Decision:** Only the **Semantic Analysis** pillar uses an LLM call. Code Evaluation, Security, Documentation, and Production Readiness are **fully deterministic** — static tools + templated finding generation, no LLM in the loop.
 **Why:** The brief's own suggested-stack table assigns "LLM-based code understanding" to exactly one row (Semantic Analysis) and gives every other pillar a specific deterministic tool. This is also the lowest-risk option against a Wednesday deadline and Groq free-tier rate limits.

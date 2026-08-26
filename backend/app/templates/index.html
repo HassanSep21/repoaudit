@@ -5,89 +5,655 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RepoAudit</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        h1 { color: #1a1a1a; }
-        .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; background: #fff; }
-        .card-header { font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; }
-        .input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .input-group input { flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
-        .input-group button { padding: 0.75rem 1.5rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-        .input-group button:disabled { background: #93c5fd; cursor: not-allowed; }
-        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
-        .status-running { background: #fef3c7; color: #92400e; }
-        .status-complete { background: #dcfce7; color: #166534; }
-        .status-partial { background: #fef3c7; color: #92400e; }
-        .status-failed { background: #fee2e2; color: #991b1b; }
-        .status-busy { background: #fce7f3; color: #9d174d; }
-        .progress { margin: 1rem 0; }
-        .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #2563eb; transition: width 0.3s; }
-        .progress-text { font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; }
-        .score-display { font-size: 2rem; font-weight: 700; }
-        .score-ready { color: #166534; }
-        .score-needs { color: #92400e; }
-        .score-not { color: #991b1b; }
-        .verdict { font-size: 1.25rem; font-weight: 600; margin-top: 0.5rem; }
-        .pillar-card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem; }
-        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .pillar-name { font-weight: 600; }
-        .tier-badge { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 4px; background: #e5e7eb; }
-        .tier-1 { background: #dcfce7; color: #166534; }
-        .tier-2 { background: #fef3c7; color: #92400e; }
-        .finding { padding: 0.75rem; background: #f9fafb; border-radius: 4px; margin-bottom: 0.5rem; border-left: 4px solid #e5e7eb; }
-        .finding-high { border-left-color: #ef4444; }
-        .finding-medium { border-left-color: #f59e0b; }
-        .finding-low { border-left-color: #3b82f6; }
-        .finding-info { border-left-color: #6b7280; }
-        .finding-header { display: flex; gap: 0.5rem; font-size: 0.875rem; margin-bottom: 0.25rem; }
-        .finding-severity { text-transform: uppercase; font-weight: 600; font-size: 0.75rem; }
-        .finding-category { color: #6b7280; }
-        .finding-location { font-family: monospace; font-size: 0.8125rem; color: #6b7280; }
-        .error { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 6px; margin-top: 1rem; }
-        .archive-warning { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 1rem; border-radius: 6px; margin-top: 1rem; }
-        .archive-warning button { margin-left: 0.5rem; padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .hidden { display: none; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        :root {
+            --color-ink-black: #17191c;
+            --color-paper-white: #ffffff;
+            --color-mist-gray: #f2f2f3;
+            --color-fog-white: #fafafb;
+            --color-slate-gray: #777b86;
+            --color-ash-gray: #979799;
+            --color-smoke-gray: #a3a6af;
+            --color-blush-peach: #fbe1d1;
+            --color-sienna-brown: #5d2a1a;
+            --color-success: #166534;
+            --color-warning: #92400e;
+            --color-error: #991b1b;
+            --color-success-bg: #dcfce7;
+            --color-warning-bg: #fef3c7;
+            --color-error-bg: #fee2e2;
+            --color-info-bg: #f1f5f9;
+            --color-info-text: #475569;
+
+            --font-signifier: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+            --font-sohne: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+            --text-display: 90px;
+            --text-heading-lg: 64px;
+            --text-heading: 44px;
+            --text-heading-sm: 26px;
+            --text-subheading: 22px;
+            --text-body-lg: 20px;
+            --text-body: 17px;
+            --text-caption: 15px;
+
+            --spacing-unit: 4px;
+            --spacing-4: 4px;
+            --spacing-8: 8px;
+            --spacing-12: 12px;
+            --spacing-16: 16px;
+            --spacing-20: 20px;
+            --spacing-24: 24px;
+            --spacing-28: 28px;
+            --spacing-32: 32px;
+            --spacing-40: 40px;
+            --spacing-64: 64px;
+            --spacing-80: 80px;
+            --spacing-96: 96px;
+
+            --radius-cards: 24px;
+            --radius-buttons: 9999px;
+            --radius-inputs: 16px;
+            --radius-smallcards: 16px;
+
+            --shadow-subtle: 0 0 0 1px rgba(4,23,43,0.05), 0 4px 24px 0 rgba(0,0,0,0.08);
+            --shadow-elevated: 0 0 0 1px rgba(4,23,43,0.05), 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+
+            --page-max-width: 1200px;
+            --section-gap: 80px;
+            --card-padding: 20px;
+            --element-gap: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+            background: var(--color-paper-white);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: var(--page-max-width);
+            margin: 0 auto;
+            padding: var(--spacing-40) var(--spacing-24) var(--spacing-80);
+        }
+
+        /* Typography */
+        h1 {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-heading);
+            line-height: 1.3;
+            letter-spacing: -0.66px;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-8);
+        }
+
+        h2 {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-heading-sm);
+            line-height: 1.3;
+            letter-spacing: -0.23px;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-12);
+        }
+
+        h3 {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-subheading);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-8);
+        }
+
+        p, li {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+        }
+
+        .muted {
+            color: var(--color-slate-gray);
+            font-size: var(--text-caption);
+        }
+
+        .caption {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            color: var(--color-ash-gray);
+        }
+
+        /* Layout components */
+        .card {
+            background: var(--color-paper-white);
+            border-radius: var(--radius-cards);
+            border: 1px solid rgba(4,23,43,0.05);
+            padding: var(--card-padding);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .card-mist {
+            background: var(--color-mist-gray);
+            border: none;
+        }
+
+        .card-peach {
+            background: var(--color-blush-peach);
+            border: none;
+            color: var(--color-sienna-brown);
+        }
+
+        .card-peach h3,
+        .card-peach .pillar-name,
+        .card-peach .finding-message,
+        .card-peach .finding-category {
+            color: var(--color-sienna-brown);
+        }
+
+        .section {
+            padding: var(--section-gap) 0;
+        }
+
+        .section-fog {
+            background: var(--color-fog-white);
+            margin: calc(-1 * var(--section-gap)) calc(-1 * var(--spacing-24));
+            padding: var(--section-gap) var(--spacing-24);
+        }
+
+        /* Input & Button */
+        .input-group {
+            display: flex;
+            gap: var(--spacing-12);
+            margin-bottom: var(--spacing-16);
+        }
+
+        .input-group input {
+            flex: 1;
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            padding: var(--spacing-16);
+            border: 1px solid #ececec;
+            border-radius: var(--radius-inputs);
+            background: var(--color-paper-white);
+            color: var(--color-ink-black);
+            width: 100%;
+            min-width: 0;
+        }
+
+        .input-group input::placeholder {
+            color: var(--color-smoke-gray);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--color-ink-black);
+            box-shadow: 0 0 0 3px rgba(23, 25, 28, 0.1);
+        }
+
+        .btn {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.5;
+            border-radius: var(--radius-buttons);
+            padding: var(--spacing-12) var(--spacing-20);
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--color-ink-black);
+            color: var(--color-paper-white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.85;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--color-ink-black);
+            border: 1px solid var(--color-ink-black);
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            background: var(--color-ink-black);
+            color: var(--color-paper-white);
+        }
+
+        .btn-peach {
+            background: var(--color-sienna-brown);
+            color: var(--color-blush-peach);
+        }
+
+        .btn-peach:hover:not(:disabled) {
+            opacity: 0.85;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            padding: var(--spacing-4) var(--spacing-12);
+            border-radius: var(--radius-buttons);
+        }
+
+        .status-running { background: var(--color-warning-bg); color: var(--color-warning); }
+        .status-complete { background: var(--color-success-bg); color: var(--color-success); }
+        .status-partial { background: var(--color-warning-bg); color: var(--color-warning); }
+        .status-failed { background: var(--color-error-bg); color: var(--color-error); }
+        .status-busy { background: var(--color-info-bg); color: var(--color-info-text); }
+
+        /* Tier badges */
+        .tier-badge {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: var(--spacing-4) var(--spacing-8);
+            border-radius: var(--radius-smallcards);
+        }
+
+        .tier-1 { background: var(--color-success-bg); color: var(--color-success); }
+        .tier-2 { background: var(--color-warning-bg); color: var(--color-warning); }
+
+        /* Score display */
+        .score-display {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: 64px;
+            line-height: 1.1;
+            letter-spacing: -0.96px;
+        }
+
+        .score-ready { color: var(--color-success); }
+        .score-needs { color: var(--color-warning); }
+        .score-not { color: var(--color-error); }
+
+        /* Verdict */
+        .verdict {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-heading-sm);
+            line-height: 1.3;
+            margin-top: var(--spacing-8);
+        }
+
+        /* Pillar cards */
+        .pillar-card {
+            background: var(--color-paper-white);
+            border: 1px solid rgba(4,23,43,0.05);
+            border-radius: var(--radius-cards);
+            padding: var(--card-padding);
+            margin-bottom: var(--spacing-16);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .pillar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-16);
+            margin-bottom: var(--spacing-12);
+            flex-wrap: wrap;
+        }
+
+        .pillar-name {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-body-lg);
+            line-height: 1.35;
+        }
+
+        .pillar-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-12);
+            flex-wrap: wrap;
+        }
+
+        .pillar-score {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-subheading);
+            line-height: 1.3;
+        }
+
+        .pillar-summary {
+            color: var(--color-slate-gray);
+            margin-bottom: var(--spacing-16);
+            line-height: 1.6;
+        }
+
+        /* Findings - expandable */
+        .findings-container {
+            border-top: 1px solid rgba(4,23,43,0.05);
+            padding-top: var(--spacing-16);
+        }
+
+        .findings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-12);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .findings-title {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-body);
+        }
+
+        .findings-toggle {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+        }
+
+        .findings-toggle svg {
+            transition: transform 0.2s ease;
+        }
+
+        .findings-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .findings-list {
+            display: none;
+            flex-direction: column;
+            gap: var(--spacing-8);
+        }
+
+        .findings-list.expanded {
+            display: flex;
+        }
+
+        .finding {
+            background: var(--color-fog-white);
+            border-radius: var(--radius-smallcards);
+            padding: var(--spacing-16);
+            border-left: 4px solid var(--color-mist-gray);
+        }
+
+        .finding-high { border-left-color: var(--color-error); }
+        .finding-medium { border-left-color: var(--color-warning); }
+        .finding-low { border-left-color: var(--color-slate-gray); }
+        .finding-info { border-left-color: var(--color-info-text); }
+
+        .finding-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-8);
+            font-size: var(--text-caption);
+        }
+
+        .finding-severity {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .finding-high .finding-severity { color: var(--color-error); }
+        .finding-medium .finding-severity { color: var(--color-warning); }
+        .finding-low .finding-severity { color: var(--color-slate-gray); }
+        .finding-info .finding-severity { color: var(--color-info-text); }
+
+        .finding-category {
+            color: var(--color-ash-gray);
+        }
+
+        .finding-message {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+        }
+
+        .finding-location {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: var(--text-caption);
+            color: var(--color-ash-gray);
+            margin-top: var(--spacing-4);
+        }
+
+        .no-findings {
+            color: var(--color-ash-gray);
+            font-style: italic;
+            padding: var(--spacing-16);
+            text-align: center;
+        }
+
+        /* Progress */
+        .progress {
+            margin: var(--spacing-16) 0;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--color-mist-gray);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-ink-black);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            margin-top: var(--spacing-8);
+        }
+
+        /* Archive warning */
+        .archive-warning {
+            background: var(--color-warning-bg);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--color-warning);
+            border-radius: var(--radius-cards);
+            padding: var(--card-padding);
+            margin-top: var(--spacing-16);
+        }
+
+        .archive-warning strong {
+            display: block;
+            margin-bottom: var(--spacing-8);
+        }
+
+        /* Error */
+        .error {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+            border-radius: var(--radius-cards);
+            padding: var(--card-padding);
+            margin-top: var(--spacing-16);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--color-mist-gray);
+            border-top-color: var(--color-ink-black);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--spacing-8);
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Overall header */
+        .overall-header {
+            text-align: center;
+            padding: var(--spacing-40) 0 var(--spacing-32);
+            border-bottom: 1px solid rgba(4,23,43,0.05);
+            margin-bottom: var(--spacing-40);
+        }
+
+        .overall-header .pillars-completed {
+            color: var(--color-slate-gray);
+            font-size: var(--text-caption);
+            margin-top: var(--spacing-12);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: var(--spacing-40) 0;
+            border-top: 1px solid rgba(4,23,43,0.05);
+            margin-top: var(--spacing-64);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-24);
+            margin-bottom: var(--spacing-12);
+        }
+
+        .footer-link {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+            transition: color 0.15s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--color-ink-black);
+        }
+
+        .footer-copy {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-smoke-gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            :root {
+                --text-heading: 36px;
+                --text-heading-sm: 22px;
+                --text-body: 16px;
+            }
+            .page {
+                padding: var(--spacing-24) var(--spacing-16) var(--spacing-64);
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            .pillar-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .pillar-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>RepoAudit</h1>
-    
-    <div class="card">
-        <div class="card-header">Analyze a Public GitHub Repository</div>
-        <div class="input-group">
-            <input type="text" id="repoUrl" placeholder="https://github.com/owner/repo" value="">
-            <button id="analyzeBtn">Analyze</button>
-        </div>
-        <div id="archiveWarning" class="archive-warning hidden">
-            <strong>Large archive files detected:</strong> This repository contains archive files that may be zip bombs.
-            <span id="archiveFiles"></span>
-            <button id="confirmBtn">Continue Anyway</button>
-        </div>
-        <div id="error" class="error hidden"></div>
-    </div>
+    <div class="page">
+        <header style="margin-bottom: var(--spacing-32);">
+            <h1>RepoAudit</h1>
+            <p class="muted">Analyze any public GitHub repository across five pillars: Code Evaluation, Security, Documentation, Production Readiness, and Semantic Analysis.</p>
+        </header>
 
-    <div id="progressCard" class="card hidden">
-        <div class="card-header">Analysis Progress <span class="status-badge status-running" id="runStatus">Running</span></div>
-        <div class="progress">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
-            <div class="progress-text" id="progressText">Starting analysis...</div>
-        </div>
-    </div>
-
-    <div id="resultsCard" class="card hidden">
-        <div class="card-header">Analysis Complete</div>
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-            <div>
-                <div class="score-display" id="overallScore">--</div>
-                <div class="verdict" id="overallVerdict">--</div>
-                <div style="margin-top: 0.5rem; color: #6b7280;">
-                    Pillars completed: <span id="pillarsCompleted">0/5</span>
+        <section class="card" style="margin-bottom: var(--spacing-24);">
+            <div class="input-group">
+                <input type="text" id="repoUrl" placeholder="https://github.com/owner/repo" value="">
+                <button id="analyzeBtn" class="btn btn-primary">Analyze</button>
+            </div>
+            <div id="archiveWarning" class="archive-warning hidden">
+                <strong>Large archive files detected:</strong> This repository contains archive files that may be zip bombs.
+                <span id="archiveFiles"></span>
+                <div style="margin-top: var(--spacing-12);">
+                    <button id="confirmBtn" class="btn btn-peach">Continue Anyway</button>
                 </div>
             </div>
-        </div>
-        <div id="pillarsContainer" style="margin-top: 1.5rem;"></div>
+            <div id="error" class="error hidden"></div>
+        </section>
+
+        <section id="progressCard" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-12);">
+                <h2>Analysis Progress</h2>
+                <span class="status-badge status-running" id="runStatus">Running</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+                <div class="progress-text" id="progressText">Initializing...</div>
+            </div>
+        </section>
+
+        <section id="resultsCard" class="hidden">
+            <div id="overallHeader" class="overall-header">
+                <div class="score-display" id="overallScore">--</div>
+                <div class="verdict" id="overallVerdict">--</div>
+                <div class="pillars-completed" id="pillarsCompleted">Pillars completed: 0/5</div>
+            </div>
+
+            <div id="pillarsContainer"></div>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                </a>
+            </div>
+            <p class="footer-copy">RepoAudit — Zero-budget automated repository analysis. Built for the Wednesday deadline.</p>
+        </footer>
     </div>
 
     <script>
@@ -190,41 +756,70 @@
                  data.overall_score !== null && data.overall_score >= 50 ? 'score-needs' : 'score-not');
 
             document.getElementById('overallVerdict').textContent = data.overall_verdict || '--';
-            document.getElementById('pillarsCompleted').textContent = data.pillars_completed;
+            document.getElementById('pillarsCompleted').textContent = `Pillars completed: ${data.pillars_completed}`;
 
             const container = document.getElementById('pillarsContainer');
             container.innerHTML = '';
 
             data.pillars.forEach(pillar => {
                 const card = document.createElement('div');
-                card.className = 'pillar-card';
+                const isPartialOrFailed = pillar.status === 'partial' || pillar.status === 'failed';
+                const cardClass = isPartialOrFailed ? 'pillar-card card-peach' : 'pillar-card';
+                
+                let statusBadgeClass = 'status-' + pillar.status;
+                let statusText = pillar.status.charAt(0).toUpperCase() + pillar.status.slice(1);
+                if (pillar.status === 'partial') statusText = 'Partial';
+                if (pillar.status === 'failed') statusText = 'Failed';
+
+                const findingsHtml = pillar.findings.length === 0 
+                    ? '<div class="no-findings">No findings</div>'
+                    : `
+                        <div class="findings-container">
+                            <div class="findings-header" onclick="toggleFindings(this)">
+                                <span class="findings-title">Findings (${pillar.findings.length})</span>
+                                <span class="findings-toggle">
+                                    Expand
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </div>
+                            <div class="findings-list">
+                                ${pillar.findings.map(f => `
+                                    <div class="finding finding-${f.severity}">
+                                        <div class="finding-header">
+                                            <span class="finding-severity">${f.severity}</span>
+                                            <span class="finding-category">${f.category}</span>
+                                        </div>
+                                        <div class="finding-message">${f.message}</div>
+                                        ${f.file_path ? `<div class="finding-location">${f.file_path}${f.line ? ':' + f.line : ''}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                card.className = cardClass;
                 card.innerHTML = `
                     <div class="pillar-header">
                         <span class="pillar-name">${pillar.name}</span>
                         <span class="tier-badge tier-${pillar.tier}">Tier ${pillar.tier}</span>
                     </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>Score:</strong> ${pillar.score !== null ? pillar.score : 'N/A'} | 
-                        <strong>Status:</strong> <span class="status-badge status-${pillar.status}">${pillar.status}</span>
+                    <div class="pillar-meta">
+                        <span class="pillar-score">${pillar.score !== null ? pillar.score : 'N/A'}</span>
+                        <span class="status-badge ${statusBadgeClass}">${statusText}</span>
                     </div>
-                    <div style="color: #6b7280; margin-bottom: 0.75rem;">${pillar.summary}</div>
-                    <div>
-                        ${pillar.findings.length === 0 
-                            ? '<em style="color: #9ca3af;">No findings</em>' 
-                            : pillar.findings.map(f => `
-                                <div class="finding finding-${f.severity}">
-                                    <div class="finding-header">
-                                        <span class="finding-severity">${f.severity}</span>
-                                        <span class="finding-category">${f.category}</span>
-                                    </div>
-                                    <div>${f.message}</div>
-                                    ${f.file_path ? `<div class="finding-location">${f.file_path}${f.line ? ':' + f.line : ''}</div>` : ''}
-                                </div>
-                            `).join('')}
-                    </div>
+                    <div class="pillar-summary">${pillar.summary || 'No summary available'}</div>
+                    ${findingsHtml}
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function toggleFindings(header) {
+            const list = header.nextElementSibling;
+            const toggle = header.querySelector('.findings-toggle');
+            list.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+            toggle.childNodes[0].textContent = list.classList.contains('expanded') ? 'Collapse ' : 'Expand ';
         }
 
         function showError(msg) {
