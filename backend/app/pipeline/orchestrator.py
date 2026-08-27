@@ -163,8 +163,9 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                     )
                     db.add(db_finding)
                 
-                # Update progress
-                completed += 1
+                # Update progress: only count complete/partial pillars toward completed
+                if result.status in ("complete", "partial"):
+                    completed += 1
                 run.pillars_completed = f"{completed}/{total_pillars}"
                 if result.score is not None:
                     scores.append(result.score)
@@ -184,7 +185,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                 run.overall_verdict = "Needs Work"
             else:
                 run.overall_verdict = "Not Ready"
-            run.pillars_completed = f"{total_pillars}/{total_pillars}"
+            run.pillars_completed = f"{completed}/{total_pillars}"
             run.completed_at = datetime.utcnow()
             db.commit()
             
