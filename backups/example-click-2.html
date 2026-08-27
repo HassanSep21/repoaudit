@@ -1,0 +1,2631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoAudit Report - click</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&family=Inter:wght@400;430;450;480;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-ink-black: #17191c;
+            --color-paper-white: #ffffff;
+            --color-mist-gray: #f2f2f3;
+            --color-fog-white: #fafafb;
+            --color-slate-gray: #777b86;
+            --color-ash-gray: #979799;
+            --color-smoke-gray: #a3a6af;
+            --color-blush-peach: #fbe1d1;
+            --color-sienna-brown: #5d2a1a;
+            --color-success: #166534;
+            --color-warning: #92400e;
+            --color-error: #991b1b;
+            --color-success-bg: #dcfce7;
+            --color-warning-bg: #fef3c7;
+            --color-error-bg: #fee2e2;
+            --color-info-bg: #f1f5f9;
+            --color-info-text: #475569;
+
+            --font-signifier: 'Source Serif 4', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+            --font-sohne: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+            --text-display: 90px;
+            --text-heading-lg: 64px;
+            --text-heading: 44px;
+            --text-heading-sm: 26px;
+            --text-subheading: 22px;
+            --text-body-lg: 20px;
+            --text-body: 17px;
+            --text-caption: 15px;
+
+            --spacing-unit: 4px;
+            --spacing-4: 4px;
+            --spacing-8: 8px;
+            --spacing-12: 12px;
+            --spacing-16: 16px;
+            --spacing-20: 20px;
+            --spacing-24: 24px;
+            --spacing-28: 28px;
+            --spacing-32: 32px;
+            --spacing-40: 40px;
+            --spacing-64: 64px;
+            --spacing-80: 80px;
+            --spacing-96: 96px;
+
+            --radius-cards: 24px;
+            --radius-buttons: 9999px;
+            --radius-inputs: 16px;
+            --radius-smallcards: 16px;
+
+            --shadow-subtle: 0 0 0 1px rgba(4,23,43,0.05), 0 4px 24px 0 rgba(0,0,0,0.08);
+            --shadow-elevated: 0 0 0 1px rgba(4,23,43,0.05), 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+
+            --page-max-width: 1200px;
+            --section-gap: 80px;
+            --card-padding: 20px;
+            --element-gap: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+            background: var(--color-paper-white);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: var(--page-max-width);
+            margin: 0 auto;
+            padding: var(--spacing-40) var(--spacing-24) var(--spacing-80);
+        }
+
+        /* Typography */
+        h1 {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-heading);
+            line-height: 1.3;
+            letter-spacing: -0.66px;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-8);
+        }
+
+        h2 {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-heading-sm);
+            line-height: 1.3;
+            letter-spacing: -0.23px;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-12);
+        }
+
+        h3 {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-subheading);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+            margin: 0 0 var(--spacing-8);
+        }
+
+        p, li {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+        }
+
+        .muted {
+            color: var(--color-slate-gray);
+            font-size: var(--text-caption);
+        }
+
+        .caption {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            color: var(--color-ash-gray);
+        }
+
+        /* Layout components */
+        .card {
+            background: var(--color-paper-white);
+            border-radius: var(--radius-cards);
+            border: 1px solid rgba(4,23,43,0.05);
+            padding: var(--card-padding);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .card-mist {
+            background: var(--color-mist-gray);
+            border: none;
+        }
+
+        .card-peach {
+            background: var(--color-blush-peach);
+            border: none;
+            color: var(--color-sienna-brown);
+        }
+
+        .card-peach h3,
+        .card-peach .pillar-name,
+        .card-peach .finding-message,
+        .card-peach .finding-category {
+            color: var(--color-sienna-brown);
+        }
+
+        .section {
+            padding: var(--section-gap) 0;
+        }
+
+        .section-fog {
+            background: var(--color-fog-white);
+            margin: calc(-1 * var(--section-gap)) calc(-1 * var(--spacing-24));
+            padding: var(--section-gap) var(--spacing-24);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            padding: var(--spacing-4) var(--spacing-12);
+            border-radius: var(--radius-buttons);
+        }
+
+        .status-running { background: var(--color-warning-bg); color: var(--color-warning); }
+        .status-complete { background: var(--color-success-bg); color: var(--color-success); }
+        .status-partial { background: var(--color-warning-bg); color: var(--color-warning); }
+        .status-failed { background: var(--color-error-bg); color: var(--color-error); }
+        .status-busy { background: var(--color-info-bg); color: var(--color-info-text); }
+
+        /* Tier badges */
+        .tier-badge {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: var(--spacing-4) var(--spacing-8);
+            border-radius: var(--radius-smallcards);
+        }
+
+        .tier-1 { background: var(--color-success-bg); color: var(--color-success); }
+        .tier-2 { background: var(--color-warning-bg); color: var(--color-warning); }
+
+        /* Score display */
+        .score-display {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: 64px;
+            line-height: 1.1;
+            letter-spacing: -0.96px;
+        }
+
+        .score-ready { color: var(--color-success); }
+        .score-needs { color: var(--color-warning); }
+        .score-not { color: var(--color-error); }
+
+        /* Verdict */
+        .verdict {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-heading-sm);
+            line-height: 1.3;
+            margin-top: var(--spacing-8);
+        }
+
+        /* Pillar cards */
+        .pillar-card {
+            background: var(--color-paper-white);
+            border: 1px solid rgba(4,23,43,0.05);
+            border-radius: var(--radius-cards);
+            padding: var(--card-padding);
+            margin-bottom: var(--spacing-16);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .pillar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-16);
+            margin-bottom: var(--spacing-12);
+            flex-wrap: wrap;
+        }
+
+        .pillar-name {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-body-lg);
+            line-height: 1.35;
+        }
+
+        .pillar-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-12);
+            flex-wrap: wrap;
+        }
+
+        .pillar-score {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-subheading);
+            line-height: 1.3;
+        }
+
+        .pillar-summary {
+            color: var(--color-slate-gray);
+            margin-bottom: var(--spacing-16);
+            line-height: 1.6;
+        }
+
+        /* Findings - expandable */
+        .findings-container {
+            border-top: 1px solid rgba(4,23,43,0.05);
+            padding-top: var(--spacing-16);
+        }
+
+        .findings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-12);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .findings-title {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-body);
+        }
+
+        .findings-toggle {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+        }
+
+        .findings-toggle svg {
+            transition: transform 0.2s ease;
+        }
+
+        .findings-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .findings-list {
+            display: none;
+            flex-direction: column;
+            gap: var(--spacing-8);
+        }
+
+        .findings-list.expanded {
+            display: flex;
+        }
+
+        .finding {
+            background: var(--color-fog-white);
+            border-radius: 0 var(--radius-smallcards) var(--radius-smallcards) 0;
+            padding: var(--spacing-16);
+            border-left: 4px solid var(--color-mist-gray);
+        }
+
+        .finding-high { border-left-color: var(--color-error); }
+        .finding-medium { border-left-color: var(--color-warning); }
+        .finding-low { border-left-color: var(--color-slate-gray); }
+        .finding-info { border-left-color: var(--color-info-text); }
+
+        .finding-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-8);
+            font-size: var(--text-caption);
+        }
+
+        .finding-severity {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .finding-high .finding-severity { color: var(--color-error); }
+        .finding-medium .finding-severity { color: var(--color-warning); }
+        .finding-low .finding-severity { color: var(--color-slate-gray); }
+        .finding-info .finding-severity { color: var(--color-info-text); }
+
+        .finding-category {
+            color: var(--color-ash-gray);
+        }
+
+        .finding-message {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+        }
+
+        .finding-location {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: var(--text-caption);
+            color: var(--color-ash-gray);
+            margin-top: var(--spacing-4);
+        }
+
+        .no-findings {
+            color: var(--color-ash-gray);
+            font-style: italic;
+            padding: var(--spacing-16);
+            text-align: center;
+        }
+
+        .pillar-plain-summary {
+            background: var(--color-fog-white);
+            border-radius: 0 var(--radius-smallcards) var(--radius-smallcards) 0;
+            padding: var(--spacing-12) var(--spacing-16);
+            margin-bottom: var(--spacing-16);
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.6;
+            color: var(--color-ink-black);
+            border-left: 4px solid var(--color-slate-gray);
+        }
+
+        /* Grouped findings */
+        .finding-group {
+            background: var(--color-fog-white);
+            border-radius: 0 var(--radius-smallcards) var(--radius-smallcards) 0;
+            padding: var(--spacing-16);
+            border-left: 4px solid var(--color-mist-gray);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .finding-group-high { border-left-color: var(--color-error); }
+        .finding-group-medium { border-left-color: var(--color-warning); }
+        .finding-group-low { border-left-color: var(--color-slate-gray); }
+        .finding-group-info { border-left-color: var(--color-info-text); }
+
+        .finding-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-12);
+            margin-bottom: var(--spacing-8);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .finding-group-message {
+            font-family: var(--font-sohne);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            color: var(--color-ink-black);
+            flex: 1;
+        }
+
+        .finding-group-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-12);
+            flex-wrap: wrap;
+        }
+
+        .finding-group-severity {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-size: var(--text-caption);
+        }
+
+        .finding-group-high .finding-group-severity { color: var(--color-error); }
+        .finding-group-medium .finding-group-severity { color: var(--color-warning); }
+        .finding-group-low .finding-group-severity { color: var(--color-slate-gray); }
+        .finding-group-info .finding-group-severity { color: var(--color-info-text); }
+
+        .finding-group-count {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-ash-gray);
+            background: var(--color-mist-gray);
+            padding: var(--spacing-4) var(--spacing-8);
+            border-radius: var(--radius-buttons);
+        }
+
+        .finding-group-toggle {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+        }
+
+        .finding-group-toggle svg {
+            transition: transform 0.2s ease;
+        }
+
+        .finding-group-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .finding-group-files {
+            display: none;
+            flex-direction: column;
+            gap: var(--spacing-8);
+            margin-top: var(--spacing-12);
+            padding-top: var(--spacing-12);
+            border-top: 1px solid rgba(4,23,43,0.05);
+        }
+
+        .finding-group-files.expanded {
+            display: flex;
+        }
+
+        .finding-group-file {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            background: var(--color-paper-white);
+            padding: var(--spacing-8) var(--spacing-12);
+            border-radius: var(--radius-smallcards);
+            border: 1px solid rgba(4,23,43,0.05);
+        }
+
+        .finding-group-file-line {
+            color: var(--color-ash-gray);
+        }
+
+        /* Pillar navigation */
+        .pillar-nav {
+            display: flex;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-24);
+            padding: var(--spacing-16) 0;
+            border-bottom: 1px solid rgba(4,23,43,0.05);
+            flex-wrap: wrap;
+        }
+
+        .pillar-nav-link {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            text-decoration: none;
+            padding: var(--spacing-4) var(--spacing-12);
+            border-radius: var(--radius-buttons);
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .pillar-nav-link:hover {
+            color: var(--color-ink-black);
+            border-color: var(--color-mist-gray);
+            background: var(--color-fog-white);
+        }
+
+        /* Compact pillar overview */
+        .pillar-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-12);
+            margin-bottom: var(--spacing-24);
+            padding: var(--spacing-20);
+            background: var(--color-fog-white);
+            border-radius: var(--radius-cards);
+            border: 1px solid rgba(4,23,43,0.05);
+        }
+
+        .pillar-overview-item {
+            text-align: center;
+        }
+
+        .pillar-overview-label {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .pillar-overview-score {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-heading-sm);
+            line-height: 1.3;
+            letter-spacing: -0.23px;
+        }
+
+        .pillar-overview-score.ready { color: var(--color-success); }
+        .pillar-overview-score.needs { color: var(--color-warning); }
+        .pillar-overview-score.not { color: var(--color-error); }
+        .pillar-overview-score.na { color: var(--color-ash-gray); }
+
+        /* Severity summary */
+        .severity-summary {
+            display: flex;
+            gap: var(--spacing-16);
+            margin-bottom: var(--spacing-24);
+            padding: var(--spacing-16) var(--spacing-20);
+            background: var(--color-fog-white);
+            border-radius: var(--radius-cards);
+            border: 1px solid rgba(4,23,43,0.05);
+            flex-wrap: wrap;
+        }
+
+        .severity-summary-label {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: var(--text-caption);
+            color: var(--color-slate-gray);
+            align-self: center;
+        }
+
+        .severity-summary-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-8);
+        }
+
+        .severity-summary-count {
+            font-family: var(--font-signifier);
+            font-weight: 400;
+            font-size: var(--text-subheading);
+            line-height: 1.3;
+        }
+
+        .severity-summary-high .severity-summary-count { color: var(--color-error); }
+        .severity-summary-medium .severity-summary-count { color: var(--color-warning); }
+        .severity-summary-low .severity-summary-count { color: var(--color-slate-gray); }
+        .severity-summary-info .severity-summary-count { color: var(--color-info-text); }
+
+        .severity-summary-text {
+            font-family: var(--font-sohne);
+            font-size: var(--text-caption);
+            color: var(--color-ash-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* Overall header */
+        .overall-header {
+            text-align: center;
+            padding: var(--spacing-40) 0 var(--spacing-32);
+            border-bottom: 1px solid rgba(4,23,43,0.05);
+            margin-bottom: var(--spacing-40);
+        }
+
+        .overall-header .pillars-completed {
+            color: var(--color-slate-gray);
+            font-size: var(--text-caption);
+            margin-top: var(--spacing-12);
+        }
+
+        
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            :root {
+                --text-heading: 36px;
+                --text-heading-sm: 22px;
+                --text-body: 16px;
+            }
+            .page {
+                padding: var(--spacing-24) var(--spacing-16) var(--spacing-64);
+            }
+            .pillar-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .pillar-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .pillar-nav {
+                gap: var(--spacing-4);
+            }
+            .pillar-nav-link {
+                padding: var(--spacing-4) var(--spacing-8);
+                font-size: 13px;
+            }
+            .pillar-overview {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-8);
+                padding: var(--spacing-16);
+            }
+            .pillar-overview-score {
+                font-size: var(--text-heading-sm);
+            }
+            .severity-summary {
+                gap: var(--spacing-8);
+                padding: var(--spacing-12) var(--spacing-16);
+            }
+            .severity-summary-label {
+                width: 100%;
+                margin-bottom: var(--spacing-4);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header style="margin-bottom: var(--spacing-32);">
+            <h1>RepoAudit Report</h1>
+            <p class="muted"><strong>click</strong> — pallets/click</p>
+            <p class="muted">Analyzed 2026-08-27 00:52 UTC</p>
+        </header>
+
+        <div class="overall-header">
+            <div class="score-display score-needs">
+                58
+            </div>
+            <div class="verdict">Needs Work</div>
+            <div class="pillars-completed">Pillars completed: 5/5</div>
+        </div>
+
+        <nav class="pillar-nav" aria-label="Pillar navigation">
+            
+            
+            
+                <a href="#pillar-code" class="pillar-nav-link">Code Evaluation</a>
+            
+                <a href="#pillar-security" class="pillar-nav-link">Security</a>
+            
+                <a href="#pillar-docs" class="pillar-nav-link">Documentation</a>
+            
+                <a href="#pillar-production" class="pillar-nav-link">Production Readiness</a>
+            
+                <a href="#pillar-semantic" class="pillar-nav-link">Semantic Analysis</a>
+            
+        </nav>
+
+        <div class="pillar-overview" aria-label="Pillar score overview">
+            
+            
+                
+                
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Code</div>
+                        <div class="pillar-overview-score not">0</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Security</div>
+                        <div class="pillar-overview-score not">30</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Docs</div>
+                        <div class="pillar-overview-score ready">85</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Production</div>
+                        <div class="pillar-overview-score ready">89</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Semantic</div>
+                        <div class="pillar-overview-score ready">90</div>
+                    </div>
+                
+            
+        </div>
+
+        <div class="severity-summary" aria-label="Findings severity summary">
+            
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+            
+            <span class="severity-summary-label">Findings</span>
+            
+                
+                <span class="severity-summary-item severity-summary-high"><span class="severity-summary-count">7</span><span class="severity-summary-text">High</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-medium"><span class="severity-summary-count">35</span><span class="severity-summary-text">Medium</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-low"><span class="severity-summary-count">42</span><span class="severity-summary-text">Low</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-info"><span class="severity-summary-count">1</span><span class="severity-summary-text">Info</span></span>
+                
+            
+        </div>
+
+        <div id="pillarsContainer">
+            
+            
+            
+            <div class="pillar-card " id="pillar-code">
+                <div class="pillar-header">
+                    <span class="pillar-name">Code Evaluation</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">0</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Code quality (score: 0/100): 7 high-severity issues, 32 medium-severity issues. Main issues are complexity and style inconsistencies.</div>
+                <div class="pillar-summary">Tier-1 analysis (Python): 7 high, 32 medium, 0 low findings</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (39 total, 39 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (35) in get_help_extra</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3383</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (28) in __init__</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:340</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (31) in _wrap_chunks</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_textwrap.py<span class="finding-group-file-line">:66</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (21) in open_stream</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_compat.py<span class="finding-group-file-line">:374</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (21) in style</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/termui.py<span class="finding-group-file-line">:641</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (26) in test_help_param_priority</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_commands.py<span class="finding-group-file-line">:472</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (25) in test_echo_writing_to_standard_error</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_utils/test_echo.py<span class="finding-group-file-line">:92</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (18) in consume_value</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3589</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (17) in get_params</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1102</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (17) in handle_parse_result</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:2730</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (16) in _parse_decls</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3235</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (15) in shell_complete</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1417</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (15) in main</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1484</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (14) in __init__</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1708</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (14) in process_value</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:2603</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (13) in _validate</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3150</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in consume_value</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:2481</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in _resolve_lazy_default</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3126</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in get_help_record</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3338</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (18) in convert</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/types.py<span class="finding-group-file-line">:1146</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (12) in convert_type</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/types.py<span class="finding-group-file-line">:1341</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (12) in convert</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/types.py<span class="finding-group-file-line">:655</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (12) in _make_default_short_help</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/utils.py<span class="finding-group-file-line">:62</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (12) in echo</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/utils.py<span class="finding-group-file-line">:252</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (13) in format_message</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/exceptions.py<span class="finding-group-file-line">:184</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (19) in invoke</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/testing.py<span class="finding-group-file-line">:596</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (19) in open_url</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:799</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (13) in _pipepager</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:549</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in render_progress</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:250</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (16) in prompt</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/termui.py<span class="finding-group-file-line">:168</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (12) in _interpret_color</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/termui.py<span class="finding-group-file-line">:616</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in confirm</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/termui.py<span class="finding-group-file-line">:289</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in test_basic_group</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_basic.py<span class="finding-group-file-line">:141</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (15) in test_exit_code_and_output_from_sys_exit</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_testing.py<span class="finding-group-file-line">:271</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (17) in test_flag_value_prompt</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_termui.py<span class="finding-group-file-line">:1679</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (13) in test_choice_usage_rendering</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_options.py<span class="finding-group-file-line">:1826</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in test_flag_value_not_stringified_for_custom_types</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_options.py<span class="finding-group-file-line">:2497</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (13) in test_prompts</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_utils/test_confirm.py<span class="finding-group-file-line">:4</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">High cyclomatic complexity (11) in test_unset_sentinel</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/tests/test_utils/test_sentinel.py<span class="finding-group-file-line">:7</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card " id="pillar-security">
+                <div class="pillar-header">
+                    <span class="pillar-name">Security</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">30</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Security posture (score: 30/100): 35 low-severity issues. Review findings for potential vulnerabilities.</div>
+                <div class="pillar-summary">Tier-1 analysis (Python): 0 high, 0 medium, 35 low findings</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (35 total, 7 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Standard pseudo-random generators are not suitable for security/cryptographic purposes.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">3 occurrences</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/examples/termui/termui.py<span class="finding-group-file-line">:43</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/examples/termui/termui.py<span class="finding-group-file-line">:47</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_compat.py<span class="finding-group-file-line">:432</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Try, Except, Pass detected.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">5 occurrences</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_compat.py<span class="finding-group-file-line">:77</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_compat.py<span class="finding-group-file-line">:170</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_compat.py<span class="finding-group-file-line">:568</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_winconsole.py<span class="finding-group-file-line">:209</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/utils.py<span class="finding-group-file-line">:45</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Consider possible security implications associated with the subprocess module.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">5 occurrences</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:560</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:646</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:716</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:800</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/shell_completion.py<span class="finding-group-file-line">:398</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">subprocess call - check for execution of untrusted input.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">8 occurrences</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:588</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:660</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:729</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:819</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:827</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:846</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:856</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/shell_completion.py<span class="finding-group-file-line">:405</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Starting a process without a shell.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:832</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Starting a process with a partial executable path</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_termui_impl.py<span class="finding-group-file-line">:856</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">12 occurrences</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/_winconsole.py<span class="finding-group-file-line">:35</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:799</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1821</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:1870</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:2027</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:2049</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/core.py<span class="finding-group-file-line">:3473</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/decorators.py<span class="finding-group-file-line">:211</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/decorators.py<span class="finding-group-file-line">:212</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/decorators.py<span class="finding-group-file-line">:236</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/decorators.py<span class="finding-group-file-line">:237</span>
+                                    </div>
+                                    
+                                    <div class="finding-group-file">
+                                        /tmp/repoaudit-c_xh3vet/src/click/parser.py<span class="finding-group-file-line">:197</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card " id="pillar-docs">
+                <div class="pillar-header">
+                    <span class="pillar-name">Documentation</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">85</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Documentation quality (score: 85/100): 1 medium-severity issue, 4 low-severity issues. Consider adding more inline docs and API documentation.</div>
+                <div class="pillar-summary">Tier-1 analysis (Python): 0 high, 1 medium, 4 low findings</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (5 total, 5 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">README lacks clear setup/installation instructions</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        README.md
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">README is brief (226 words) - could be expanded</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        README.md
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Low comment density (5.2%) - inline documentation could be improved</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">18 files with &gt;20 lines have no comments</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Low API documentation coverage (302/1119 functions documented)</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card " id="pillar-production">
+                <div class="pillar-header">
+                    <span class="pillar-name">Production Readiness</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">89</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Production readiness (score: 89/100): 1 medium-severity issue, 2 low-severity issues. Consider adding CI/CD, health checks, and error handling.</div>
+                <div class="pillar-summary">Tier-1 analysis (Python): 0 high, 1 medium, 2 low findings</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (3 total, 3 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Low error handling coverage (65/837 functions have try/catch)</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">No Dockerfile found - containerization not configured</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">No health check endpoint detected (/health, /healthz, /ready, etc.)</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card " id="pillar-semantic">
+                <div class="pillar-header">
+                    <span class="pillar-name">Semantic Analysis</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">90</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Architecture review (score: 90/100): 1 medium-severity issue, 1 low-severity issue, 1 informational item.</div>
+                <div class="pillar-summary">LLM analysis: A Python library for building command line interfaces with composable commands a... (0 high, 1 medium, 1 low findings)</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (3 total, 3 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Windows console handling in _winconsole.py relies on legacy APIs and may fail on newer Windows terminal environments without proper fallback.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Most public functions in core.py and decorators.py lack PEP‑484 type annotations, reducing static analysis benefits.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-info">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">The package’s __all__ list is not defined, which can lead to accidental export of internal symbols.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">info</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        </div>
+
+<script>
+        function toggleFindings(header) {
+            const list = header.nextElementSibling;
+            const toggle = header.querySelector('.findings-toggle');
+            list.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+            toggle.childNodes[0].textContent = list.classList.contains('expanded') ? 'Collapse ' : 'Expand ';
+        }
+
+        function toggleFindingGroup(header) {
+            const group = header.closest('.finding-group');
+            const files = group.querySelector('.finding-group-files');
+            const toggle = group.querySelector('.finding-group-toggle');
+            files.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+            toggle.childNodes[0].textContent = files.classList.contains('expanded') ? 'Collapse ' : 'Expand ';
+        }
+
+        document.querySelector('.pillar-nav').addEventListener('click', (e) => {
+            const link = e.target.closest('.pillar-nav-link');
+            if (link) {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

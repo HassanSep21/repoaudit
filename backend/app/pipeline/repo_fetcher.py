@@ -9,6 +9,18 @@ from app.models.schema import Repo
 GITHUB_API_BASE = "https://api.github.com"
 MAX_REPO_SIZE_KB = 500 * 1024  # 500MB
 MAX_ARCHIVE_SIZE_KB = 5 * 1024  # 5MB
+
+# User-friendly error messages
+SIZE_LIMIT_ERROR = (
+    "This repository is too large to analyze (over 500 MB). "
+    "RepoAudit has a size limit to ensure analyses complete within a reasonable time. "
+    "Try a smaller repository or a specific subdirectory."
+)
+ARCHIVE_WARNING_ERROR = (
+    "This repository contains large archive files that could be zip bombs (compressed files "
+    "that expand to enormous sizes). Analyzing them could exceed resource limits. "
+    "If you trust this repository, you can continue anyway."
+)
 ARCHIVE_EXTENSIONS = {".zip", ".tar.gz", ".tgz", ".7z", ".rar", ".tar.bz2", ".tar.xz"}
 
 
@@ -16,7 +28,7 @@ class ArchiveFileError(Exception):
     """Raised when repo contains large archive files and confirm is not true."""
     def __init__(self, files):
         self.files = files
-        super().__init__(f"Large archive files detected: {', '.join(files)}. Use confirm=true to proceed anyway.")
+        super().__init__(ARCHIVE_WARNING_ERROR)
 
 
 def fetch_repo(repo_url: str, confirm: bool = False) -> str:
@@ -45,7 +57,7 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
     size_kb = repo_data.get("size", 0)
     
     if size_kb > MAX_REPO_SIZE_KB:
-        raise RuntimeError(f"Repository too large ({size_kb} KB > {MAX_REPO_SIZE_KB} KB limit)")
+        raise RuntimeError(SIZE_LIMIT_ERROR)
     
     # Check for large archive files (D20) - use recursive tree listing
     default_branch = repo_data.get("default_branch", "main")
@@ -114,7 +126,7 @@ def precheck_repo(repo_url: str, confirm: bool = False) -> None:
     size_kb = repo_data.get("size", 0)
     
     if size_kb > MAX_REPO_SIZE_KB:
-        raise RuntimeError(f"Repository too large ({size_kb} KB > {MAX_REPO_SIZE_KB} KB limit)")
+        raise RuntimeError(SIZE_LIMIT_ERROR)
     
     # Check for large archive files (D20) - use recursive tree listing
     default_branch = repo_data.get("default_branch", "main")

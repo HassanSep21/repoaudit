@@ -134,6 +134,12 @@ class SemanticAnalysisPillar(Pillar):
 
 Scoring (0-100): Architecture (0-40), Module boundaries (0-30), Deps (0-30).
 
+FINDINGS RULES (CRITICAL):
+- findings[] MUST ONLY contain actual issues, risks, or problems — NOT praise or positive observations
+- severity MUST reflect urgency: high = critical issue needing immediate attention, medium = significant issue, low = minor issue, info = informational note
+- Positive observations (e.g., "clear boundaries", "good documentation") go in architecture_summary, NOT in findings[]
+- If no issues exist, findings[] MUST be empty array
+
 REPO STRUCTURE (top 10):
 {file_tree}
 

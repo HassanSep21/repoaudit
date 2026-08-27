@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RepoAudit Report - {{ repo.name if repo else 'Unknown' }}</title>
+    <title>RepoAudit Report - Hello-World</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&family=Inter:wght@400;430;450;480;500&display=swap" rel="stylesheet">
@@ -670,108 +670,245 @@
     <div class="page">
         <header style="margin-bottom: var(--spacing-32);">
             <h1>RepoAudit Report</h1>
-            <p class="muted"><strong>{{ repo.name if repo else 'Unknown Repository' }}</strong> — {{ repo.owner if repo else '' }}/{{ repo.name if repo else '' }}</p>
-            <p class="muted">Analyzed {{ run.started_at.strftime('%Y-%m-%d %H:%M UTC') if run.started_at else 'unknown time' }}</p>
+            <p class="muted"><strong>Hello-World</strong> — octocat/Hello-World</p>
+            <p class="muted">Analyzed 2026-08-27 00:48 UTC</p>
         </header>
 
         <div class="overall-header">
-            <div class="score-display {% if run.overall_score is not none and run.overall_score >= 80 %}score-ready{% elif run.overall_score is not none and run.overall_score >= 50 %}score-needs{% else %}score-not{% endif %}">
-                {{ run.overall_score if run.overall_score is not none else '--' }}
+            <div class="score-display score-not">
+                46
             </div>
-            <div class="verdict">{{ run.overall_verdict or '--' }}</div>
-            <div class="pillars-completed">Pillars completed: {{ run.pillars_completed }}</div>
+            <div class="verdict">Not Ready</div>
+            <div class="pillars-completed">Pillars completed: 5/5</div>
         </div>
 
         <nav class="pillar-nav" aria-label="Pillar navigation">
-            {% set pillar_order = ['Code Evaluation', 'Security', 'Documentation', 'Production Readiness', 'Semantic Analysis'] %}
-            {% set pillar_slugs = {'Code Evaluation': 'code', 'Security': 'security', 'Documentation': 'docs', 'Production Readiness': 'production', 'Semantic Analysis': 'semantic'} %}
-            {% for name in pillar_order %}
-                <a href="#pillar-{{ pillar_slugs[name] }}" class="pillar-nav-link">{{ name }}</a>
-            {% endfor %}
+            
+            
+            
+                <a href="#pillar-code" class="pillar-nav-link">Code Evaluation</a>
+            
+                <a href="#pillar-security" class="pillar-nav-link">Security</a>
+            
+                <a href="#pillar-docs" class="pillar-nav-link">Documentation</a>
+            
+                <a href="#pillar-production" class="pillar-nav-link">Production Readiness</a>
+            
+                <a href="#pillar-semantic" class="pillar-nav-link">Semantic Analysis</a>
+            
         </nav>
 
         <div class="pillar-overview" aria-label="Pillar score overview">
-            {% set pillar_labels = {'Code Evaluation': 'Code', 'Security': 'Security', 'Documentation': 'Docs', 'Production Readiness': 'Production', 'Semantic Analysis': 'Semantic'} %}
-            {% for name in pillar_order %}
-                {% set pillar = pillars | selectattr('name', 'equalto', name) | first %}
-                {% if pillar %}
-                    {% set score = pillar.score if pillar.score is not none else 'N/A' %}
-                    {% set score_class = 'na' %}
-                    {% if pillar.score is not none and pillar.score >= 80 %}{% set score_class = 'ready' %}
-                    {% elif pillar.score is not none and pillar.score >= 50 %}{% set score_class = 'needs' %}
-                    {% elif pillar.score is not none %}{% set score_class = 'not' %}{% endif %}
+            
+            
+                
+                
+                    
+                    
+                    
+                    
                     <div class="pillar-overview-item">
-                        <div class="pillar-overview-label">{{ pillar_labels[name] }}</div>
-                        <div class="pillar-overview-score {{ score_class }}">{{ score }}</div>
+                        <div class="pillar-overview-label">Code</div>
+                        <div class="pillar-overview-score needs">70</div>
                     </div>
-                {% endif %}
-            {% endfor %}
+                
+            
+                
+                
+                    
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Security</div>
+                        <div class="pillar-overview-score needs">60</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Docs</div>
+                        <div class="pillar-overview-score needs">60</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Production</div>
+                        <div class="pillar-overview-score not">40</div>
+                    </div>
+                
+            
+                
+                
+                    
+                    
+                    
+                    <div class="pillar-overview-item">
+                        <div class="pillar-overview-label">Semantic</div>
+                        <div class="pillar-overview-score not">0</div>
+                    </div>
+                
+            
         </div>
 
         <div class="severity-summary" aria-label="Findings severity summary">
-            {% set counts = {'high': 0, 'medium': 0, 'low': 0, 'info': 0} %}
-            {% for pillar in pillars %}
-                {% for f in pillar.findings %}
-                    {% if f.severity in counts %}
-                        {% set _ = counts.update({f.severity: counts[f.severity] + 1}) %}
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-            {% set total = counts.high + counts.medium + counts.low + counts.info %}
+            
+            
+                
+            
+                
+            
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+                
+                    
+                        
+                    
+                
+                    
+                        
+                    
+                
+            
+            
             <span class="severity-summary-label">Findings</span>
-            {% if total == 0 %}
-                <span class="severity-summary-item"><span class="severity-summary-text">No findings</span></span>
-            {% else %}
-                {% if counts.high > 0 %}
-                <span class="severity-summary-item severity-summary-high"><span class="severity-summary-count">{{ counts.high }}</span><span class="severity-summary-text">High</span></span>
-                {% endif %}
-                {% if counts.medium > 0 %}
-                <span class="severity-summary-item severity-summary-medium"><span class="severity-summary-count">{{ counts.medium }}</span><span class="severity-summary-text">Medium</span></span>
-                {% endif %}
-                {% if counts.low > 0 %}
-                <span class="severity-summary-item severity-summary-low"><span class="severity-summary-count">{{ counts.low }}</span><span class="severity-summary-text">Low</span></span>
-                {% endif %}
-                {% if counts.info > 0 %}
-                <span class="severity-summary-item severity-summary-info"><span class="severity-summary-count">{{ counts.info }}</span><span class="severity-summary-text">Info</span></span>
-                {% endif %}
-            {% endif %}
+            
+                
+                <span class="severity-summary-item severity-summary-high"><span class="severity-summary-count">2</span><span class="severity-summary-text">High</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-medium"><span class="severity-summary-count">2</span><span class="severity-summary-text">Medium</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-low"><span class="severity-summary-count">1</span><span class="severity-summary-text">Low</span></span>
+                
+                
+                <span class="severity-summary-item severity-summary-info"><span class="severity-summary-count">1</span><span class="severity-summary-text">Info</span></span>
+                
+            
         </div>
 
         <div id="pillarsContainer">
-            {% for pillar in pillars %}
-            {% set pillar_slugs = {'Code Evaluation': 'code', 'Security': 'security', 'Documentation': 'docs', 'Production Readiness': 'production', 'Semantic Analysis': 'semantic'} %}
-            {% set slug = pillar_slugs[pillar.name] if pillar.name in pillar_slugs else pillar.name.lower().replace(' ', '-') %}
-            <div class="pillar-card {% if pillar.status in ['partial', 'failed'] %}card-peach{% endif %}" id="pillar-{{ slug }}">
+            
+            
+            
+            <div class="pillar-card card-peach" id="pillar-code">
                 <div class="pillar-header">
-                    <span class="pillar-name">{{ pillar.name }}</span>
-                    <span class="tier-badge tier-{{ pillar.tier }}">Tier {{ pillar.tier }}</span>
+                    <span class="pillar-name">Code Evaluation</span>
+                    <span class="tier-badge tier-2">Tier 2</span>
                 </div>
                 <div class="pillar-meta">
-                    <span class="pillar-score">{{ pillar.score if pillar.score is not none else 'N/A' }}</span>
-                    <span class="status-badge status-{{ pillar.status }}">{{ pillar.status.capitalize() }}</span>
+                    <span class="pillar-score">70</span>
+                    <span class="status-badge status-partial">Partial</span>
                 </div>
-                <div class="pillar-plain-summary">{{ pillar.plain_summary }}</div>
-                <div class="pillar-summary">{{ pillar.summary or 'No summary available' }}</div>
+                <div class="pillar-plain-summary">No issues found — this pillar passed cleanly.</div>
+                <div class="pillar-summary">Tier-2 (best-effort) analysis: basic cloc metrics only. No Tier-1 language detected.</div>
                 <div class="findings-container">
                     <div class="findings-header" onclick="toggleFindings(this)">
-                        <span class="findings-title">Findings ({{ pillar.findings|length }} total, {{ pillar.grouped_findings|length }} unique)</span>
+                        <span class="findings-title">Findings (0 total, 0 unique)</span>
                         <span class="findings-toggle">
                             Expand
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </span>
                     </div>
                     <div class="findings-list">
-                        {% set grouped = pillar.grouped_findings %}
-                        {% if grouped|length == 0 %}
+                        
+                        
                             <div class="no-findings">No findings</div>
-                        {% else %}
-                            {% for g in grouped %}
-                            <div class="finding-group finding-group-{{ g.severity }}">
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card card-peach" id="pillar-security">
+                <div class="pillar-header">
+                    <span class="pillar-name">Security</span>
+                    <span class="tier-badge tier-2">Tier 2</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">60</span>
+                    <span class="status-badge status-partial">Partial</span>
+                </div>
+                <div class="pillar-plain-summary">No issues found — this pillar passed cleanly.</div>
+                <div class="pillar-summary">Tier-2 (best-effort) analysis: basic cloc metrics only. No Tier-1 language detected.</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (0 total, 0 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            <div class="no-findings">No findings</div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card card-peach" id="pillar-docs">
+                <div class="pillar-header">
+                    <span class="pillar-name">Documentation</span>
+                    <span class="tier-badge tier-2">Tier 2</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">60</span>
+                    <span class="status-badge status-partial">Partial</span>
+                </div>
+                <div class="pillar-plain-summary">Documentation quality (score: 60/100): 1 medium-severity issue. Consider adding more inline docs and API documentation.</div>
+                <div class="pillar-summary">Tier-2 (best-effort) analysis: basic README checks only. No Tier-1 language detected.</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (1 total, 1 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-medium">
                                 <div class="finding-group-header" onclick="toggleFindingGroup(this)">
-                                    <div class="finding-group-message">{{ g.message }}</div>
+                                    <div class="finding-group-message">README is very brief</div>
                                     <div class="finding-group-meta">
-                                        <span class="finding-group-severity">{{ g.severity }}</span>
-                                        <span class="finding-group-count">{{ g.count }} occurrence{{ 's' if g.count > 1 else '' }}</span>
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
                                         <span class="finding-group-toggle">
                                             Expand
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -779,19 +916,184 @@
                                     </div>
                                 </div>
                                 <div class="finding-group-files">
-                                    {% for f in g.files %}
+                                    
                                     <div class="finding-group-file">
-                                        {{ f.path }}{% if f.line %}<span class="finding-group-file-line">:{{ f.line }}</span>{% endif %}
+                                        README
                                     </div>
-                                    {% endfor %}
+                                    
                                 </div>
                             </div>
-                            {% endfor %}
-                        {% endif %}
+                            
+                        
                     </div>
                 </div>
             </div>
-            {% endfor %}
+            
+            
+            
+            <div class="pillar-card card-peach" id="pillar-production">
+                <div class="pillar-header">
+                    <span class="pillar-name">Production Readiness</span>
+                    <span class="tier-badge tier-2">Tier 2</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">40</span>
+                    <span class="status-badge status-partial">Partial</span>
+                </div>
+                <div class="pillar-plain-summary">Production readiness (score: 40/100): 1 high-severity issue, 1 medium-severity issue, 1 low-severity issue. Consider adding CI/CD, health checks, and error handling.</div>
+                <div class="pillar-summary">Tier-2 (best-effort) analysis: basic structural checks only. No Tier-1 language detected.</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (3 total, 3 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">No CI/CD configuration found</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-medium">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">No LICENSE file found</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">medium</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-low">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">No Dockerfile found</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">low</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="pillar-card " id="pillar-semantic">
+                <div class="pillar-header">
+                    <span class="pillar-name">Semantic Analysis</span>
+                    <span class="tier-badge tier-1">Tier 1</span>
+                </div>
+                <div class="pillar-meta">
+                    <span class="pillar-score">0</span>
+                    <span class="status-badge status-complete">Complete</span>
+                </div>
+                <div class="pillar-plain-summary">Architecture review (score: 0/100): 1 high-severity issue, 1 informational item.</div>
+                <div class="pillar-summary">LLM analysis: Not specified... (1 high, 0 medium, 0 low findings)</div>
+                <div class="findings-container">
+                    <div class="findings-header" onclick="toggleFindings(this)">
+                        <span class="findings-title">Findings (2 total, 2 unique)</span>
+                        <span class="findings-toggle">
+                            Expand
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </div>
+                    <div class="findings-list">
+                        
+                        
+                            
+                            <div class="finding-group finding-group-high">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Repository lacks any source code or implementation files.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">high</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="finding-group finding-group-info">
+                                <div class="finding-group-header" onclick="toggleFindingGroup(this)">
+                                    <div class="finding-group-message">Only a minimal README is present; no detailed documentation provided.</div>
+                                    <div class="finding-group-meta">
+                                        <span class="finding-group-severity">info</span>
+                                        <span class="finding-group-count">1 occurrence</span>
+                                        <span class="finding-group-toggle">
+                                            Expand
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-group-files">
+                                    
+                                    <div class="finding-group-file">
+                                        None
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
         </div>
 
         </div>

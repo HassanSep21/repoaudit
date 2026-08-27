@@ -7,11 +7,68 @@ import asyncio
 import json
 from datetime import datetime
 from typing import Optional
+from collections import defaultdict
 
 from app.db.session import init_db, get_db
 from app.models.schema import Repo, AnalysisRun, PillarResult, Finding
 from app.pipeline.orchestrator import run_analysis_pipeline
 from app.pipeline.repo_fetcher import precheck_repo, ArchiveFileError
+
+
+def generate_plain_summary(pillar_name: str, score: Optional[int], findings: list) -> str:
+    """Generate a plain-language summary for a pillar."""
+    if not findings:
+        return "No issues found — this pillar passed cleanly."
+    
+    counts = defaultdict(int)
+    for f in findings:
+        counts[f.get("severity", "info")] += 1
+    
+    parts = []
+    if counts.get("high", 0) > 0:
+        parts.append(f"{counts['high']} high-severity issue{'s' if counts['high'] > 1 else ''}")
+    if counts.get("medium", 0) > 0:
+        parts.append(f"{counts['medium']} medium-severity issue{'s' if counts['medium'] > 1 else ''}")
+    if counts.get("low", 0) > 0:
+        parts.append(f"{counts['low']} low-severity issue{'s' if counts['low'] > 1 else ''}")
+    if counts.get("info", 0) > 0:
+        parts.append(f"{counts['info']} informational item{'s' if counts['info'] > 1 else ''}")
+    
+    score_text = f" (score: {score}/100)" if score is not None else ""
+    pillar_lower = pillar_name.lower()
+    
+    if pillar_name.lower() == "code evaluation":
+        return f"Code quality{score_text}: {', '.join(parts)}. Main issues are complexity and style inconsistencies."
+    elif pillar_name.lower() == "security":
+        return f"Security posture{score_text}: {', '.join(parts)}. Review findings for potential vulnerabilities."
+    elif pillar_name.lower() == "documentation":
+        return f"Documentation quality{score_text}: {', '.join(parts)}. Consider adding more inline docs and API documentation."
+    elif pillar_name.lower() == "production readiness":
+        return f"Production readiness{score_text}: {', '.join(parts)}. Consider adding CI/CD, health checks, and error handling."
+    elif pillar_name.lower() == "semantic analysis":
+        return f"Architecture review{score_text}: {', '.join(parts)}."
+    return f"Found {', '.join(parts)}.{score_text}"
+
+
+def group_findings(findings: list) -> list:
+    """Group findings by message, returning list of groups with count and file locations."""
+    groups = defaultdict(lambda: {"message": "", "severity": "", "category": "", "count": 0, "files": []})
+    for f in findings:
+        key = f.get("message", "")
+        group = groups[key]
+        if not group["message"]:
+            group["message"] = f.get("message", "")
+            group["severity"] = f.get("severity", "info")
+            group["category"] = f.get("category", "")
+        group["count"] += 1
+        group["files"].append({
+            "path": f.get("file_path", "unknown"),
+            "line": f.get("line")
+        })
+    
+    # Sort by severity: high > medium > low > info
+    severity_order = {"high": 0, "medium": 1, "low": 2, "info": 3}
+    return sorted(groups.values(), key=lambda g: severity_order.get(g["severity"], 4))
 
 app = FastAPI(title="RepoAudit")
 
@@ -47,20 +104,33 @@ async def start_analysis(request: Request):
     # Validate URL against allow-list (Rule 17)
     import re
     if not re.match(r"^https://github\.com/[^/]+/[^/]+(\.git)?$", url):
-        raise HTTPException(status_code=400, detail="Invalid GitHub URL. Must be https://github.com/owner/repo")
+        raise HTTPException(
+            status_code=400, 
+            detail="Please enter a valid public GitHub repository URL (e.g., https://github.com/owner/repo)"
+        )
     
     # Archive file check (D20) - before lock to avoid holding lock on API call
     try:
         precheck_repo(url, confirm=confirm)
     except ArchiveFileError as e:
-        raise HTTPException(status_code=409, detail={"reason": "contains_archive_files", "files": e.files})
+        raise HTTPException(
+            status_code=409, 
+            detail={
+                "reason": "contains_archive_files", 
+                "files": e.files,
+                "message": str(e)
+            }
+        )
     except Exception:
         # Other fetch errors (size, not found, etc.) will be caught in background task
         pass
     
     # Concurrency lock (D16) - acquire synchronously for atomic 429
     if _analysis_lock.locked():
-        raise HTTPException(status_code=429, detail="Another analysis is in progress. Try again shortly.")
+        raise HTTPException(
+            status_code=429, 
+            detail="Another analysis is currently running. RepoAudit processes one repository at a time — please wait a moment and try again."
+        )
     
     # Acquire lock for the entire pipeline
     await _analysis_lock.acquire()
@@ -221,7 +291,7 @@ async def export_html(run_id: int, request: Request):
         # Get repo
         repo = db.query(Repo).filter(Repo.id == run.repo_id).first()
         
-        # Get pillar results
+        # Get pillar results with grouped findings and plain summaries
         pillars_data = []
         for pr in run.pillar_results:
             findings = [
@@ -234,13 +304,17 @@ async def export_html(run_id: int, request: Request):
                 }
                 for f in pr.findings
             ]
+            grouped = group_findings(findings)
+            plain_summary = generate_plain_summary(pr.pillar_name, pr.score, findings)
             pillars_data.append({
                 "name": pr.pillar_name,
                 "status": pr.status,
                 "tier": pr.tier,
                 "score": pr.score,
                 "summary": pr.summary,
+                "plain_summary": plain_summary,
                 "findings": findings,
+                "grouped_findings": grouped,
             })
         
         return templates.TemplateResponse(

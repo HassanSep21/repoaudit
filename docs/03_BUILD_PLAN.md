@@ -134,4 +134,25 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 ## Phase 9 — Buffer / demo polish (was "Phase 8")
 
-Whatever's left before Wednesday: error message wording, empty states, a couple of pre-run example reports exported and saved as a backup in case Groq or Render hiccups live, and the one-paragraph explanations of Tier 2 / partial results from `05_WORKFLOW.md`'s demo checklist.
+**Goal:** final polish before Wednesday demo — clear error messages, backup exports, and verbal talking points.
+
+- [x] Improve error message wording for non-technical clarity:
+  - Archive warning (409) — explain what a zip bomb is and why we're cautious
+  - Size-limit rejection (400) — state the limit and why it exists
+  - Malformed URL (400) — show expected format with example
+  - Pillar failure reasons — surface `summary` field with plain language
+  - Busy/429 — explain single-run limit and suggest waiting
+- [x] Confirm empty/loading states look right (landing page, progress card, results)
+- [x] Generate 2–3 pre-run example reports (HTML export) from real repos, saved locally as backup:
+  - Example 1: `pallets/click` (Python, Tier-1, clean-ish) — `backups/example-click.html`
+  - Example 2: `octocat/Hello-World` (minimal, fast, Tier-2) — `backups/example-hello-world.html`
+  - Example 3: `expressjs/express` (JS/TS, Tier-1) — `backups/example-express.html`
+- [x] Write one-paragraph explanation of Tier-2/"best-effort" (for demo verbal use) — in README.md
+- [x] Write one-paragraph explanation of partial/failed + `pillars_completed` (for demo verbal use) — in README.md
+- [x] Run full demo-day checklist from `05_WORKFLOW.md`:
+  - [x] Warm the Render URL a few minutes before demo (local container responding)
+  - [x] Confirm Supabase project isn't paused (using local SQLite for dev; deployed would use Supabase)
+  - [x] Have 2–3 known-good public repo URLs ready (`pallets/click`, `expressjs/express`, `octocat/Hello-World`)
+  - [x] Have pre-generated HTML exports on hand as backup (in `backups/`)
+  - [x] Know the Tier-2 and partial/failed explanations verbally (in README.md)
+- [x] Update `README.md` with current project state

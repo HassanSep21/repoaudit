@@ -170,21 +170,24 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                 if run:
                     run.status = "failed"
                     run.pillars_completed = f"0/{total_pillars}"
+                    run.overall_verdict = "Analysis timed out (5-minute limit exceeded). Try a smaller repository."
                     run.completed_at = datetime.utcnow()
                     db.commit()
         except Exception as e2:
             print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     except Exception as e:
-        print(f"[run_analysis_pipeline] ERROR for run {run_id}: {e}")
+        error_msg = str(e)
+        print(f"[run_analysis_pipeline] ERROR for run {run_id}: {error_msg}")
         import traceback
         traceback.print_exc()
-        # Mark run as failed
+        # Mark run as failed with error message
         try:
             with get_db() as db:
                 run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
                 if run:
                     run.status = "failed"
                     run.pillars_completed = f"0/{total_pillars}"
+                    run.overall_verdict = f"Analysis failed: {error_msg}"
                     run.completed_at = datetime.utcnow()
                     db.commit()
         except Exception as e2:
