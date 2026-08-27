@@ -52,9 +52,6 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
     # Import lock from main
     from app.main import _analysis_lock
     
-    # Total pipeline timeout: 5 minutes (D9)
-    PIPELINE_TIMEOUT_SECONDS = 300
-    
     # Define pillars and total_pillars upfront so except handlers can reference them
     pillars = [
         CodeEvaluationPillar(),
@@ -99,12 +96,42 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
             
             # Run pillar with appropriate timeout
             pillar_timeout = pillar_timeouts.get(pillar.name, default_timeout)
-            result = await asyncio.wait_for(
-                asyncio.get_event_loop().run_in_executor(
-                    None, functools.partial(pillar.run, Path(temp_dir), timeout_s=pillar_timeout)
-                ),
-                timeout=pillar_timeout
-            )
+            print(f"[run_analysis_pipeline] Starting pillar: {pillar.name} (timeout={pillar_timeout}s)")
+            pillar_start = time.time()
+            
+            try:
+                result = await asyncio.wait_for(
+                    asyncio.get_event_loop().run_in_executor(
+                        None, functools.partial(pillar.run, Path(temp_dir), timeout_s=pillar_timeout)
+                    ),
+                    timeout=pillar_timeout
+                )
+                pillar_duration = time.time() - pillar_start
+                print(f"[run_analysis_pipeline] Pillar {pillar.name} completed in {pillar_duration:.1f}s")
+            except asyncio.TimeoutError:
+                pillar_duration = time.time() - pillar_start
+                print(f"[run_analysis_pipeline] Pillar {pillar.name} TIMEOUT after {pillar_duration:.1f}s")
+                # Graceful degradation: mark this pillar as failed, continue to next
+                result = PillarResult(
+                    name=pillar.name,
+                    status="failed",
+                    tier=1,
+                    score=None,
+                    summary=f"Pillar timed out after {pillar_timeout}s",
+                    findings=[Finding(severity="high", category="pillar_timeout", message=f"Analysis timed out after {pillar_timeout} seconds")],
+                )
+            except Exception as e:
+                pillar_duration = time.time() - pillar_start
+                print(f"[run_analysis_pipeline] Pillar {pillar.name} ERROR after {pillar_duration:.1f}s: {e}")
+                # Graceful degradation: mark this pillar as failed, continue to next
+                result = PillarResult(
+                    name=pillar.name,
+                    status="failed",
+                    tier=1,
+                    score=None,
+                    summary=f"Pillar failed: {e}",
+                    findings=[Finding(severity="high", category="pillar_error", message=str(e))],
+                )
             
             # Persist pillar result
             with get_db() as db:
@@ -161,20 +188,6 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
             run.completed_at = datetime.utcnow()
             db.commit()
             
-    except asyncio.TimeoutError:
-        print(f"[run_analysis_pipeline] TIMEOUT for run {run_id}")
-        # Mark run as failed
-        try:
-            with get_db() as db:
-                run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
-                if run:
-                    run.status = "failed"
-                    run.pillars_completed = f"0/{total_pillars}"
-                    run.overall_verdict = "Analysis timed out (5-minute limit exceeded). Try a smaller repository."
-                    run.completed_at = datetime.utcnow()
-                    db.commit()
-        except Exception as e2:
-            print(f"[run_analysis_pipeline] Failed to mark run as failed: {e2}")
     except Exception as e:
         error_msg = str(e)
         print(f"[run_analysis_pipeline] ERROR for run {run_id}: {error_msg}")

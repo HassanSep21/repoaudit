@@ -71,11 +71,11 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** reuse the Phase 2 pattern for the three remaining deterministic pillars (D2), now with Trivy/Semgrep's real resource behavior already known from Phase 1.
 
-- [ ] `pillars/security.py`: Semgrep + Trivy (D4), + `npm audit`/`Bandit` for Tier-1. **Redact matched secret values** before they ever reach a `Finding.message` (Rule 18) — verify this with a fixture repo that has a fake hardcoded secret, and check the rendered finding never shows the actual value.
-- [ ] `pillars/documentation.py`: README present/length, setup section detected, comment density, best-effort API doc coverage
-- [ ] `pillars/production_readiness.py`: CI config, error-handling patterns, logging usage, LICENSE, Dockerfile presence
-- [ ] Wire all three into `orchestrator.py`, **sequentially** after Code Evaluation (D16) — confirm total wall-clock time for all four deterministic pillars together is still within the overall 5-minute budget
-- [ ] Expand the UI to show all four pillar cards
+- [x] `pillars/security.py`: Semgrep + Trivy (D4), + `npm audit`/`Bandit` for Tier-1. **Redact matched secret values** before they ever reach a `Finding.message` (Rule 18) — verify this with a fixture repo that has a fake hardcoded secret, and check the rendered finding never shows the actual value.
+- [x] `pillars/documentation.py`: README present/length, setup section detected, comment density, best-effort API doc coverage
+- [x] `pillars/production_readiness.py`: CI config, error-handling patterns, logging usage, LICENSE, Dockerfile presence
+- [x] Wire all three into `orchestrator.py`, **sequentially** after Code Evaluation (D16) — confirm total wall-clock time for all four deterministic pillars together is still within the overall 5-minute budget
+- [x] Expand the UI to show all four pillar cards
 
 **DoD:** all four deterministic pillars run on the same test repos from Phase 3, each produces a distinct, specific score + findings, and the secret-redaction check above passes.
 
@@ -85,11 +85,11 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** the one LLM-backed pillar, against the JSON contract defined in D17.
 
-- [ ] `llm/provider.py` + `llm/groq_provider.py` — implement `LLMProvider`, 90s timeout, model string from `GROQ_MODEL` env var
-- [ ] `pillars/semantic_analysis.py`: build a prompt from repo structure (mind context limits — don't dump the whole repo), request the exact JSON shape from `02_ARCHITECTURE.md`
-- [ ] Implement the one-retry-then-fail parse logic (D17) — test it explicitly with a mocked malformed response
-- [ ] Handle Groq timeout/rate-limit as `status=failed`, not a crash
-- [ ] Wire into `orchestrator.py` as the fifth sequential pillar
+- [x] `llm/provider.py` + `llm/groq_provider.py` — implement `LLMProvider`, 90s timeout, model string from `GROQ_MODEL` env var
+- [x] `pillars/semantic_analysis.py`: build a prompt from repo structure (mind context limits — don't dump the whole repo), request the exact JSON shape from `02_ARCHITECTURE.md`
+- [x] Implement the one-retry-then-fail parse logic (D17) — test it explicitly with a mocked malformed response
+- [x] Handle Groq timeout/rate-limit as `status=failed`, not a crash
+- [x] Wire into `orchestrator.py` as the fifth sequential pillar
 
 **DoD:** all five pillars run together on a real repo and produce a complete report. Separately: a test with a mocked malformed LLM response confirms the retry fires once, then the pillar reports `failed` with `reason="llm_output_unparseable"` — not a crash, not a silently empty pillar.
 
@@ -99,9 +99,9 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** meets "understandable to a non-author reviewer."
 
-- [ ] Overall verdict + score + `pillars_completed` at the top (D18)
-- [ ] Five pillar cards: score, Tier-2 badge where relevant, templated summary, expandable findings
-- [ ] Clear treatment of `partial`/`failed` pillars — state what happened, never gray out silently
+- [x] Overall verdict + score + `pillars_completed` at the top (D18)
+- [x] Five pillar cards: score, Tier-2 badge where relevant, templated summary, expandable findings
+- [x] Clear treatment of `partial`/`failed` pillars — state what happened, never gray out silently
 
 **DoD:** hand the report to someone who's never seen the repo — they can tell you what it does and whether it looks production-ready, from the report alone.
 
@@ -111,9 +111,9 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** exportable/shareable output — and per the audit, the *more* robust of the two "shareable" mechanisms (D8), since it depends on nothing being awake.
 
-- [ ] JSON export: full `AnalysisRun` including all pillars/findings
-- [ ] HTML export: static, self-contained, reuses the report template
-- [ ] (Stretch) PDF export, only if Phases 0–6 are solid with time to spare
+- [x] JSON export: full `AnalysisRun` including all pillars/findings
+- [x] HTML export: static, self-contained, reuses the report template
+- [x] (Stretch) PDF export, only if Phases 0–6 are solid with time to spare
 
 **DoD:** a report downloaded from the deployed instance can be opened and read with the Render app fully shut down.
 
@@ -123,10 +123,10 @@ Follow phases **in order**. Do not start a phase until the previous one's "Defin
 
 **Goal:** because Phase 1 already de-risked the platform, this phase is a final full run-through, not first contact with Render.
 
-- [ ] Re-confirm all five pillars are live on the current deploy
-- [ ] Re-run the Phase 1 storage-survives-a-restart check, now with real report data
-- [ ] Run the full flow against 3–5 real public repos of varying size/language from a cold Render instance, on the actual deployed URL
-- [ ] Confirm export works on the deployed instance
+- [x] Re-confirm all five pillars are live on the current deploy
+- [x] Re-run the Phase 1 storage-survives-a-restart check, now with real report data
+- [x] Run the full flow against 3–5 real public repos of varying size/language from a cold Render instance, on the actual deployed URL
+- [x] Confirm export works on the deployed instance
 
 **DoD:** a fresh browser tab, on the public Render URL, produces a full five-pillar report with working export and durable storage, on a repo not used during development.
 
