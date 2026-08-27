@@ -113,7 +113,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                 print(f"[run_analysis_pipeline] Pillar {pillar.name} TIMEOUT after {pillar_duration:.1f}s")
                 # Graceful degradation: mark this pillar as failed, continue to next
                 result = PillarResult(
-                    name=pillar.name,
+                    pillar_name=pillar.name,
                     status="failed",
                     tier=1,
                     score=None,
@@ -125,7 +125,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
                 print(f"[run_analysis_pipeline] Pillar {pillar.name} ERROR after {pillar_duration:.1f}s: {e}")
                 # Graceful degradation: mark this pillar as failed, continue to next
                 result = PillarResult(
-                    name=pillar.name,
+                    pillar_name=pillar.name,
                     status="failed",
                     tier=1,
                     score=None,
