@@ -332,7 +332,7 @@ async def export_html(run_id: int, request: Request):
 # PDF Export endpoint
 @app.get("/analysis/{run_id}/export.pdf")
 async def export_pdf(run_id: int, request: Request):
-    """Export analysis report as PDF using Playwright/Chromium."""
+    """Export analysis report as PDF using Playwright/Chromium with dedicated print template."""
     from playwright.async_api import async_playwright
     import tempfile
     import os
@@ -371,8 +371,8 @@ async def export_pdf(run_id: int, request: Request):
                 "grouped_findings": grouped,
             })
         
-        # Render HTML template to string
-        html_content = templates.get_template("export.html").render(
+        # Render dedicated PDF template to string
+        html_content = templates.get_template("pdf_report.html").render(
             request=request,
             run=run,
             repo=repo,
