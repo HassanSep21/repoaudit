@@ -332,3 +332,85 @@ async def export_html(run_id: int, request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+# PDF Export endpoint
+@app.get("/analysis/{run_id}/export.pdf")
+async def export_pdf(run_id: int, request: Request):
+    """Export analysis report as PDF using Playwright/Chromium."""
+    from playwright.async_api import async_playwright
+    import tempfile
+    import os
+    
+    with get_db() as db:
+        run = db.query(AnalysisRun).filter(AnalysisRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Analysis run not found")
+        
+        # Get repo
+        repo = db.query(Repo).filter(Repo.id == run.repo_id).first()
+        
+        # Get pillar results with grouped findings and plain summaries
+        pillars_data = []
+        for pr in run.pillar_results:
+            findings = [
+                {
+                    "severity": f.severity,
+                    "category": f.category,
+                    "message": f.message,
+                    "file_path": f.file_path,
+                    "line": f.line,
+                }
+                for f in pr.findings
+            ]
+            grouped = group_findings(findings)
+            plain_summary = generate_plain_summary(pr.pillar_name, pr.score, findings)
+            pillars_data.append({
+                "name": pr.pillar_name,
+                "status": pr.status,
+                "tier": pr.tier,
+                "score": pr.score,
+                "summary": pr.summary,
+                "plain_summary": plain_summary,
+                "findings": findings,
+                "grouped_findings": grouped,
+            })
+        
+        # Render HTML template to string
+        html_content = templates.get_template("export.html").render(
+            request=request,
+            run=run,
+            repo=repo,
+            pillars=pillars_data,
+        )
+        
+        # Generate PDF using Playwright
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
+            pdf_path = tmp_pdf.name
+        
+        try:
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=["--no-sandbox", "--disable-setuid-sandbox"]
+                )
+                page = await browser.new_page()
+                await page.set_content(html_content, wait_until="networkidle")
+                await page.pdf(
+                    path=pdf_path,
+                    format="A4",
+                    margin={"top": "20mm", "bottom": "20mm", "left": "15mm", "right": "15mm"},
+                    print_background=True,
+                )
+                await browser.close()
+            
+            return FileResponse(
+                pdf_path,
+                media_type="application/pdf",
+                filename=f"repoaudit-{run_id}.pdf",
+                background=lambda: os.unlink(pdf_path)
+            )
+        except Exception as e:
+            if os.path.exists(pdf_path):
+                os.unlink(pdf_path)
+            raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")
