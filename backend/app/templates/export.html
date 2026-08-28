@@ -656,6 +656,49 @@
             letter-spacing: 0.02em;
         }
 
+        /* Buttons */
+        .btn {
+            font-family: var(--font-sohne);
+            font-weight: 400;
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            border-radius: var(--radius-buttons);
+            padding: var(--spacing-12) var(--spacing-20);
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-ink-black);
+            color: var(--color-paper-white);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.85;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--color-ink-black);
+            border-color: var(--color-ink-black);
+        }
+
+        .btn-ghost:hover {
+            background: var(--color-ink-black);
+            color: var(--color-paper-white);
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--color-ink-black);
+            outline-offset: 2px;
+        }
+
         /* Overall header */
         .overall-header {
             text-align: center;

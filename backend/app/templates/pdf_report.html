@@ -21,55 +21,61 @@
             --color-success: #166534;
             --color-warning: #92400e;
             --color-error: #991b1b;
-            --color-success-bg: #dcfce7;
-            --color-warning-bg: #fef3c7;
-            --color-error-bg: #fee2e2;
-            --color-info-bg: #f1f5f9;
             --color-info-text: #475569;
+            --color-hairline: rgba(23, 25, 28, 0.12);
+            --color-hairline-soft: rgba(23, 25, 28, 0.08);
 
             --font-signifier: 'Source Serif 4', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
             --font-sohne: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-            --text-display: 90px;
-            --text-heading-lg: 64px;
-            --text-heading: 44px;
-            --text-heading-sm: 26px;
-            --text-subheading: 22px;
-            --text-body-lg: 20px;
-            --text-body: 17px;
-            --text-caption: 15px;
-
-            --spacing-unit: 4px;
-            --spacing-4: 4px;
-            --spacing-8: 8px;
-            --spacing-12: 12px;
-            --spacing-16: 16px;
-            --spacing-20: 20px;
-            --spacing-24: 24px;
-            --spacing-28: 28px;
-            --spacing-32: 32px;
-            --spacing-40: 40px;
-            --spacing-64: 64px;
-            --spacing-80: 80px;
-            --spacing-96: 96px;
-
-            --radius-cards: 24px;
-            --radius-buttons: 9999px;
-            --radius-inputs: 16px;
-            --radius-smallcards: 16px;
-
-            --shadow-subtle: 0 0 0 1px rgba(4,23,43,0.05), 0 4px 24px 0 rgba(0,0,0,0.08);
-            --shadow-elevated: 0 0 0 1px rgba(4,23,43,0.05), 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
-
-            --page-max-width: 1200px;
-            --section-gap: 80px;
-            --card-padding: 20px;
-            --element-gap: 8px;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
+        /* ---------------------------------------------------------------
+           Paged media: running header + footer with page numbers.
+           Rendered by engines that support CSS Paged Media (e.g. WeasyPrint,
+           Prince). Engines that don't (e.g. a plain Chromium print-to-PDF)
+           simply ignore these rules and the document still reads correctly
+           without them, so this degrades safely either way.
+        ----------------------------------------------------------------*/
         @page {
             size: A4;
-            margin: 20mm 15mm;
+            margin: 30mm 18mm 22mm;
+
+            @top-left {
+                content: "RepoAudit";
+                font-family: var(--font-sohne);
+                font-weight: 500;
+                font-size: 8pt;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--color-ash-gray);
+            }
+            @top-right {
+                content: "{{ repo.owner if repo else '' }}/{{ repo.name if repo else 'Unknown' }}";
+                font-family: var(--font-sohne);
+                font-size: 8pt;
+                color: var(--color-ash-gray);
+            }
+            @bottom-left {
+                content: "Automated audit — not a substitute for professional review";
+                font-family: var(--font-sohne);
+                font-size: 7.5pt;
+                color: var(--color-smoke-gray);
+            }
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: var(--font-sohne);
+                font-size: 7.5pt;
+                color: var(--color-smoke-gray);
+            }
+        }
+
+        @page :first {
+            margin: 0;
+            @top-left { content: none; }
+            @top-right { content: none; }
+            @bottom-left { content: none; }
+            @bottom-right { content: none; }
         }
 
         * {
@@ -78,7 +84,7 @@
 
         body {
             font-family: var(--font-sohne);
-            font-size: 11pt;
+            font-size: 10.5pt;
             line-height: 1.6;
             color: var(--color-ink-black);
             background: var(--color-paper-white);
@@ -89,230 +95,322 @@
 
         .page {
             max-width: 100%;
-            margin: 0;
-            padding: 0;
         }
 
         /* Typography */
-        h1 {
+        h1, h2, h3, h4 {
             font-family: var(--font-signifier);
             font-weight: 400;
-            font-size: 36pt;
-            line-height: 1.2;
-            letter-spacing: -0.5pt;
             color: var(--color-ink-black);
-            margin: 0 0 8pt;
-        }
-
-        h2 {
-            font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 22pt;
-            line-height: 1.25;
-            letter-spacing: -0.15pt;
-            color: var(--color-ink-black);
-            margin: 0 0 12pt;
-        }
-
-        h3 {
-            font-family: var(--font-sohne);
-            font-weight: 480;
-            font-size: 14pt;
-            line-height: 1.4;
-            color: var(--color-ink-black);
-            margin: 0 0 8pt;
-        }
-
-        h4 {
-            font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 11pt;
-            line-height: 1.4;
-            color: var(--color-ink-black);
-            margin: 0 0 6pt;
+            margin: 0;
         }
 
         p, li {
             font-family: var(--font-sohne);
-            font-size: 11pt;
-            line-height: 1.6;
+            font-size: 10.5pt;
+            line-height: 1.65;
             color: var(--color-ink-black);
             margin: 0 0 8pt;
         }
 
-        .muted {
-            color: var(--color-slate-gray);
-            font-size: 10pt;
-        }
+        .muted { color: var(--color-slate-gray); }
 
-        .caption {
+        .small-caps-label {
             font-family: var(--font-sohne);
-            font-weight: 400;
-            font-size: 9pt;
-            line-height: 1.5;
+            font-weight: 500;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
             color: var(--color-ash-gray);
         }
 
-        /* Cover page */
+        /* =================================================================
+           COVER PAGE
+        ==================================================================*/
         .cover {
-            text-align: center;
-            padding: 60mm 0 40mm;
-            border-bottom: 1px solid rgba(4,23,43,0.08);
-            margin-bottom: 12mm;
+            page-break-after: always;
+            min-height: 297mm;
+            padding: 26mm 20mm 18mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .cover .logo {
+        .cover-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 10mm;
+            border-bottom: 1px solid var(--color-hairline);
+        }
+
+        .cover-wordmark {
             font-family: var(--font-signifier);
             font-weight: 400;
-            font-size: 28pt;
-            letter-spacing: -0.3pt;
-            color: var(--color-ink-black);
+            font-size: 15pt;
+            letter-spacing: -0.2pt;
+        }
+
+        .cover-doctype {
+            text-align: right;
+        }
+
+        .cover-body {
+            padding-top: 22mm;
+        }
+
+        .cover-eyebrow {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--color-slate-gray);
             margin-bottom: 8mm;
         }
 
-        .cover .repo-name {
-            font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 36pt;
+        .cover-title {
+            font-size: 34pt;
             line-height: 1.15;
-            letter-spacing: -0.5pt;
-            color: var(--color-ink-black);
-            margin: 0 0 6mm;
+            letter-spacing: -0.6pt;
+            max-width: 150mm;
         }
 
-        .cover .repo-path {
+        .cover-subtitle {
             font-family: var(--font-sohne);
             font-weight: 400;
-            font-size: 13pt;
+            font-size: 12pt;
             color: var(--color-slate-gray);
-            margin-bottom: 10mm;
+            margin-top: 5mm;
         }
 
-        .cover .score-block {
-            display: inline-block;
-            margin-top: 4mm;
-            padding: 0 16mm;
-            background: var(--color-fog-white);
-            border-radius: 12pt;
-            border: 1px solid rgba(4,23,43,0.05);
+        .cover-verdict-block {
+            margin-top: 16mm;
+            display: flex;
+            align-items: baseline;
+            gap: 10mm;
+            padding: 8mm 0;
+            border-top: 1px solid var(--color-hairline);
+            border-bottom: 1px solid var(--color-hairline);
         }
 
-        .cover .score-label {
-            font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 10pt;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--color-slate-gray);
-            display: block;
-            margin-bottom: 4pt;
-        }
-
-        .cover .score-value {
+        .cover-score {
             font-family: var(--font-signifier);
             font-weight: 400;
-            font-size: 48pt;
-            line-height: 1.05;
+            font-size: 46pt;
+            line-height: 1;
             letter-spacing: -1pt;
         }
 
-        .cover .score-ready { color: var(--color-success); }
-        .cover .score-needs { color: var(--color-warning); }
-        .cover .score-not { color: var(--color-error); }
-        .cover .score-na { color: var(--color-ash-gray); }
-
-        .cover .verdict {
+        .cover-score-suffix {
             font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 16pt;
-            line-height: 1.2;
-            color: var(--color-ink-black);
-            margin-top: 6mm;
+            font-size: 11pt;
+            color: var(--color-ash-gray);
         }
 
-        .cover .meta {
+        .cover-verdict-text {
+            font-family: var(--font-sohne);
+            font-weight: 450;
+            font-size: 13pt;
+        }
+
+        .cover-verdict-status {
+            display: inline-block;
+            width: 7pt;
+            height: 7pt;
+            border-radius: 50%;
+            margin-right: 6pt;
+            vertical-align: middle;
+        }
+
+        .status-dot-ready { background: var(--color-success); }
+        .status-dot-needs { background: var(--color-warning); }
+        .status-dot-not { background: var(--color-error); }
+        .status-dot-na { background: var(--color-smoke-gray); }
+
+        .cover-meta {
+            margin-top: 10mm;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8mm;
+        }
+
+        .cover-meta-item .small-caps-label {
+            margin-bottom: 3pt;
+            display: block;
+        }
+
+        .cover-meta-item div.value {
             font-family: var(--font-sohne);
             font-size: 10pt;
-            color: var(--color-slate-gray);
-            margin-top: 10mm;
-            display: flex;
-            justify-content: center;
-            gap: 20pt;
-            flex-wrap: wrap;
         }
 
-        .cover .meta-item {
+        .cover-footer {
+            padding-top: 8mm;
+            border-top: 1px solid var(--color-hairline);
             display: flex;
-            align-items: center;
-            gap: 6pt;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
-        .cover .meta-label {
+        .cover-footer p {
+            font-size: 8.5pt;
+            color: var(--color-smoke-gray);
+            max-width: 100mm;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .cover-footer .report-id {
+            font-family: var(--font-mono);
+            font-size: 8pt;
+            color: var(--color-smoke-gray);
+            text-align: right;
+        }
+
+        /* =================================================================
+           TABLE OF CONTENTS
+        ==================================================================*/
+        .toc {
+            page-break-after: always;
+            padding-top: 4mm;
+        }
+
+        .toc h2 {
+            font-size: 18pt;
+            padding-bottom: 4mm;
+            border-bottom: 1px solid var(--color-ink-black);
+            margin-bottom: 8mm;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-list li {
+            display: flex;
+            align-items: baseline;
+            gap: 4pt;
+            padding: 4.5mm 0;
+            border-bottom: 1px solid var(--color-hairline-soft);
+            font-size: 11pt;
+        }
+
+        .toc-num {
+            font-family: var(--font-signifier);
+            color: var(--color-ash-gray);
+            font-size: 11pt;
+            width: 8mm;
+            flex-shrink: 0;
+        }
+
+        .toc-label {
+            font-family: var(--font-sohne);
             font-weight: 450;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-size: 9pt;
         }
 
-        /* Section */
+        .toc-sub {
+            font-family: var(--font-sohne);
+            font-size: 9pt;
+            color: var(--color-slate-gray);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .about-block {
+            margin-top: 14mm;
+            padding-top: 8mm;
+            border-top: 1px solid var(--color-hairline-soft);
+        }
+
+        .about-block h3 {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-slate-gray);
+            margin-bottom: 4mm;
+        }
+
+        .about-block p {
+            color: var(--color-slate-gray);
+            font-size: 9.5pt;
+        }
+
+        /* =================================================================
+           SECTIONS (Executive Summary + Pillars)
+        ==================================================================*/
         .section {
             margin-bottom: 10mm;
         }
 
+        .section-eyebrow {
+            font-family: var(--font-sohne);
+            font-weight: 500;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-ash-gray);
+            margin-bottom: 2mm;
+        }
+
         .section-title {
-            font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 20pt;
+            font-size: 19pt;
             line-height: 1.2;
             letter-spacing: -0.2pt;
-            color: var(--color-ink-black);
-            margin: 0 0 2mm;
             padding-bottom: 4pt;
-            border-bottom: 2px solid var(--color-ink-black);
+            border-bottom: 1.5px solid var(--color-ink-black);
+            margin-bottom: 6mm;
         }
 
         .section-subtitle {
-            font-family: var(--font-sohne);
-            font-size: 11pt;
+            font-size: 10pt;
             color: var(--color-slate-gray);
-            margin: 0 0 6mm;
+            margin: -3mm 0 6mm;
         }
 
-        /* Pillar section */
-        .pillar-section {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 8mm;
+        /* Data tables (used throughout in place of colored UI cards) */
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6mm;
         }
 
-        .pillar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            gap: 12pt;
-            flex-wrap: wrap;
-            margin-bottom: 4mm;
-        }
-
-        .pillar-name {
+        table.data-table th {
+            text-align: left;
             font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 14pt;
-            line-height: 1.3;
+            font-weight: 500;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-slate-gray);
+            padding: 0 8pt 5pt;
+            border-bottom: 1px solid var(--color-ink-black);
         }
 
-        .pillar-meta {
-            display: flex;
-            align-items: center;
-            gap: 10pt;
-            flex-wrap: wrap;
+        table.data-table td {
+            font-family: var(--font-sohne);
+            font-size: 10pt;
+            padding: 7pt 8pt;
+            border-bottom: 1px solid var(--color-hairline-soft);
+            vertical-align: top;
         }
 
-        .pillar-score {
+        table.data-table tr:last-child td {
+            border-bottom: 1px solid var(--color-ink-black);
+        }
+
+        table.data-table td:first-child,
+        table.data-table th:first-child { padding-left: 0; }
+        table.data-table td:last-child,
+        table.data-table th:last-child { padding-right: 0; }
+
+        .num-cell {
             font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 18pt;
-            line-height: 1.1;
+            font-size: 13pt;
         }
 
         .score-ready { color: var(--color-success); }
@@ -320,478 +418,483 @@
         .score-not { color: var(--color-error); }
         .score-na { color: var(--color-ash-gray); }
 
-        .tier-badge {
-            font-family: var(--font-sohne);
-            font-weight: 400;
+        .status-text {
             font-size: 9pt;
-            line-height: 1.4;
-            padding: 3pt 8pt;
-            border-radius: 6pt;
+            color: var(--color-slate-gray);
         }
 
-        .tier-1 { background: var(--color-success-bg); color: var(--color-success); }
-        .tier-2 { background: var(--color-warning-bg); color: var(--color-warning); }
-
-        .status-badge {
-            font-family: var(--font-sohne);
-            font-weight: 400;
-            font-size: 9pt;
-            line-height: 1.4;
-            padding: 3pt 8pt;
-            border-radius: 6pt;
+        .status-dot {
+            display: inline-block;
+            width: 6pt;
+            height: 6pt;
+            border-radius: 50%;
+            margin-right: 5pt;
         }
 
-        .status-complete { background: var(--color-success-bg); color: var(--color-success); }
-        .status-partial { background: var(--color-warning-bg); color: var(--color-warning); }
-        .status-failed { background: var(--color-error-bg); color: var(--color-error); }
-        .status-busy { background: var(--color-info-bg); color: var(--color-info-text); }
+        /* Severity summary — compact inline table on the exec summary page */
+        .severity-summary {
+            display: flex;
+            gap: 14mm;
+            padding: 6mm 0;
+            border-top: 1px solid var(--color-hairline);
+            border-bottom: 1px solid var(--color-hairline);
+            margin-bottom: 8mm;
+        }
+
+        .severity-summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .severity-summary-count {
+            font-family: var(--font-signifier);
+            font-size: 20pt;
+            line-height: 1.1;
+        }
+
+        .sev-high .severity-summary-count { color: var(--color-error); }
+        .sev-medium .severity-summary-count { color: var(--color-warning); }
+        .sev-low .severity-summary-count { color: var(--color-slate-gray); }
+        .sev-info .severity-summary-count { color: var(--color-info-text); }
+
+        .severity-summary-label {
+            font-family: var(--font-sohne);
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-ash-gray);
+            margin-top: 1mm;
+        }
+
+        /* =================================================================
+           PILLAR SECTIONS
+        ==================================================================*/
+        .pillar-section {
+            page-break-before: always;
+            padding-top: 2mm;
+        }
+
+        .pillar-kicker {
+            display: flex;
+            align-items: baseline;
+            gap: 6pt;
+            margin-bottom: 2mm;
+        }
+
+        .pillar-number {
+            font-family: var(--font-signifier);
+            font-size: 12pt;
+            color: var(--color-ash-gray);
+        }
+
+        .pillar-title {
+            font-size: 19pt;
+            letter-spacing: -0.2pt;
+        }
+
+        .pillar-statline {
+            display: flex;
+            gap: 14mm;
+            padding: 4mm 0 5mm;
+            border-bottom: 1.5px solid var(--color-ink-black);
+            margin-bottom: 6mm;
+        }
+
+        .pillar-stat .small-caps-label {
+            display: block;
+            margin-bottom: 1.5mm;
+        }
+
+        .pillar-stat .value {
+            font-family: var(--font-sohne);
+            font-size: 10.5pt;
+        }
+
+        .pillar-stat .value.score {
+            font-family: var(--font-signifier);
+            font-size: 14pt;
+        }
 
         .pillar-summary {
             color: var(--color-slate-gray);
             margin-bottom: 5mm;
-            line-height: 1.7;
         }
 
         .pillar-plain-summary {
+            padding: 5mm 6mm;
+            margin: 0 0 7mm;
+            border-left: 2px solid var(--color-ink-black);
             background: var(--color-fog-white);
-            border-radius: 8pt;
-            padding: 8pt 12pt;
-            margin-bottom: 5mm;
-            font-family: var(--font-sohne);
-            font-size: 11pt;
-            line-height: 1.7;
+        }
+
+        .pillar-plain-summary p {
+            margin: 0;
+            font-style: italic;
             color: var(--color-ink-black);
-            border-left: 4px solid var(--color-slate-gray);
         }
 
-        /* Findings */
-        .findings-section {
-            margin-top: 4mm;
-        }
-
-        .findings-title {
-            font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 12pt;
-            color: var(--color-ink-black);
-            margin: 0 0 3mm;
-            padding-bottom: 2pt;
-            border-bottom: 1px solid rgba(4,23,43,0.08);
-        }
-
-        .findings-list {
-            display: flex;
-            flex-direction: column;
-            gap: 3mm;
-        }
-
-        .finding {
-            background: var(--color-fog-white);
-            border-radius: 6pt;
-            padding: 10pt 12pt;
-            border-left: 4px solid var(--color-mist-gray);
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .finding-high { border-left-color: var(--color-error); }
-        .finding-medium { border-left-color: var(--color-warning); }
-        .finding-low { border-left-color: var(--color-slate-gray); }
-        .finding-info { border-left-color: var(--color-info-text); }
-
-        .finding-header {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8pt;
-            margin-bottom: 6pt;
-            font-size: 9pt;
-        }
-
-        .finding-severity {
+        .findings-heading {
             font-family: var(--font-sohne);
             font-weight: 500;
+            font-size: 9pt;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
-        }
-
-        .finding-high .finding-severity { color: var(--color-error); }
-        .finding-medium .finding-severity { color: var(--color-warning); }
-        .finding-low .finding-severity { color: var(--color-slate-gray); }
-        .finding-info .finding-severity { color: var(--color-info-text); }
-
-        .finding-category {
-            color: var(--color-ash-gray);
-        }
-
-        .finding-message {
-            font-family: var(--font-sohne);
-            font-size: 11pt;
-            line-height: 1.6;
-            color: var(--color-ink-black);
-        }
-
-        .finding-location {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 9pt;
-            color: var(--color-ash-gray);
-            margin-top: 4pt;
-        }
-
-        .finding-group {
-            background: var(--color-fog-white);
-            border-radius: 6pt;
-            padding: 10pt 12pt;
-            border-left: 4px solid var(--color-mist-gray);
-            margin-bottom: 3mm;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .finding-group-high { border-left-color: var(--color-error); }
-        .finding-group-medium { border-left-color: var(--color-warning); }
-        .finding-group-low { border-left-color: var(--color-slate-gray); }
-        .finding-group-info { border-left-color: var(--color-info-text); }
-
-        .finding-group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10pt;
-            flex-wrap: wrap;
-            margin-bottom: 6pt;
-        }
-
-        .finding-group-message {
-            font-family: var(--font-sohne);
-            font-size: 11pt;
-            line-height: 1.6;
-            color: var(--color-ink-black);
-            flex: 1;
-            min-width: 200pt;
-        }
-
-        .finding-group-meta {
-            display: flex;
-            align-items: center;
-            gap: 8pt;
-            flex-wrap: wrap;
-        }
-
-        .finding-group-severity {
-            font-family: var(--font-sohne);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            font-size: 9pt;
-        }
-
-        .finding-group-high .finding-group-severity { color: var(--color-error); }
-        .finding-group-medium .finding-group-severity { color: var(--color-warning); }
-        .finding-group-low .finding-group-severity { color: var(--color-slate-gray); }
-        .finding-group-info .finding-group-severity { color: var(--color-info-text); }
-
-        .finding-group-count {
-            font-family: var(--font-sohne);
-            font-size: 9pt;
-            color: var(--color-ash-gray);
-            background: var(--color-mist-gray);
-            padding: 2pt 8pt;
-            border-radius: 6pt;
-        }
-
-        .finding-group-files {
-            margin-top: 6pt;
-            padding-top: 6pt;
-            border-top: 1px solid rgba(4,23,43,0.08);
-        }
-
-        .finding-group-file {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 9pt;
+            letter-spacing: 0.07em;
             color: var(--color-slate-gray);
-            background: var(--color-paper-white);
-            padding: 5pt 10pt;
-            border-radius: 4pt;
-            border: 1px solid rgba(4,23,43,0.05);
-            margin-bottom: 3pt;
-        }
-
-        .finding-group-file-line {
-            color: var(--color-ash-gray);
+            padding-bottom: 3mm;
+            border-bottom: 1px solid var(--color-hairline);
+            margin-bottom: 5mm;
         }
 
         .no-findings {
             color: var(--color-ash-gray);
             font-style: italic;
-            padding: 12pt;
-            text-align: center;
+            padding: 6mm 0;
         }
 
-        /* Compact pillar overview */
-        .pillar-overview {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8pt;
-            margin-bottom: 6mm;
-            padding: 12pt;
-            background: var(--color-fog-white);
-            border-radius: 8pt;
-            border: 1px solid rgba(4,23,43,0.05);
+        /* Findings table */
+        table.findings-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .pillar-overview-item {
-            text-align: center;
-        }
-
-        .pillar-overview-label {
+        table.findings-table thead th {
+            text-align: left;
             font-family: var(--font-sohne);
-            font-size: 9pt;
-            color: var(--color-slate-gray);
-            margin-bottom: 3pt;
+            font-weight: 500;
+            font-size: 8pt;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .pillar-overview-score {
-            font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 20pt;
-            line-height: 1.1;
-            letter-spacing: -0.2pt;
-        }
-
-        .pillar-overview-score.ready { color: var(--color-success); }
-        .pillar-overview-score.needs { color: var(--color-warning); }
-        .pillar-overview-score.not { color: var(--color-error); }
-        .pillar-overview-score.na { color: var(--color-ash-gray); }
-
-        /* Severity summary */
-        .severity-summary {
-            display: flex;
-            gap: 12pt;
-            margin-bottom: 6mm;
-            padding: 10pt 14pt;
-            background: var(--color-fog-white);
-            border-radius: 8pt;
-            border: 1px solid rgba(4,23,43,0.05);
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .severity-summary-label {
-            font-family: var(--font-sohne);
-            font-weight: 450;
-            font-size: 9pt;
+            letter-spacing: 0.06em;
             color: var(--color-slate-gray);
+            padding: 0 8pt 4pt;
+            border-bottom: 1px solid var(--color-ink-black);
         }
 
-        .severity-summary-item {
-            display: flex;
-            align-items: center;
-            gap: 6pt;
+        table.findings-table td {
+            padding: 6pt 8pt;
+            border-bottom: 1px solid var(--color-hairline-soft);
+            vertical-align: top;
+            font-size: 9.5pt;
         }
 
-        .severity-summary-count {
-            font-family: var(--font-signifier);
-            font-weight: 400;
-            font-size: 16pt;
-            line-height: 1.1;
-        }
+        table.findings-table td:first-child,
+        table.findings-table th:first-child { padding-left: 0; width: 16mm; }
+        table.findings-table td:last-child,
+        table.findings-table th:last-child { padding-right: 0; }
 
-        .severity-summary-high .severity-summary-count { color: var(--color-error); }
-        .severity-summary-medium .severity-summary-count { color: var(--color-warning); }
-        .severity-summary-low .severity-summary-count { color: var(--color-slate-gray); }
-        .severity-summary-info .severity-summary-count { color: var(--color-info-text); }
-
-        .severity-summary-text {
-            font-family: var(--font-sohne);
-            font-size: 9pt;
-            color: var(--color-ash-gray);
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-        }
-
-        /* Page break controls */
-        .page-break-before {
-            page-break-before: always;
-        }
-
-        .page-break-after {
-            page-break-after: always;
-        }
-
-        .avoid-break {
+        tr.finding-row {
             page-break-inside: avoid;
             break-inside: avoid;
         }
 
-        /* Footer */
-        .footer {
-            margin-top: 15mm;
-            padding-top: 8pt;
-            border-top: 1px solid rgba(4,23,43,0.08);
+        .sev-label {
             font-family: var(--font-sohne);
-            font-size: 9pt;
-            color: var(--color-smoke-gray);
-            text-align: center;
+            font-weight: 500;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
         }
 
-        /* Print-only adjustments */
-        @media print {
-            body {
-                font-size: 11pt;
-            }
-            .cover {
-                padding: 50mm 0 30mm;
-            }
+        .sev-label.high { color: var(--color-error); }
+        .sev-label.medium { color: var(--color-warning); }
+        .sev-label.low { color: var(--color-slate-gray); }
+        .sev-label.info { color: var(--color-info-text); }
+
+        .finding-message {
+            color: var(--color-ink-black);
+            margin: 0;
+        }
+
+        .finding-files {
+            margin-top: 3pt;
+            font-family: var(--font-mono);
+            font-size: 8pt;
+            color: var(--color-slate-gray);
+            line-height: 1.7;
+        }
+
+        .finding-files span {
+            display: inline-block;
+            margin-right: 8pt;
+        }
+
+        .finding-count {
+            color: var(--color-ash-gray);
+            white-space: nowrap;
+        }
+
+        /* Closing page */
+        .closing {
+            page-break-before: always;
+            padding-top: 2mm;
+        }
+
+        .closing h2 {
+            font-size: 16pt;
+            padding-bottom: 4mm;
+            border-bottom: 1px solid var(--color-ink-black);
+            margin-bottom: 6mm;
+        }
+
+        .closing p {
+            color: var(--color-slate-gray);
+            font-size: 9.5pt;
+        }
+
+        .disclaimer {
+            margin-top: 10mm;
+            padding-top: 6mm;
+            border-top: 1px solid var(--color-hairline);
+        }
+
+        .disclaimer .small-caps-label {
+            display: block;
+            margin-bottom: 3mm;
         }
     </style>
 </head>
 <body>
     <div class="page">
-        <!-- Cover Page -->
+
+        <!-- =========================================================
+             COVER PAGE
+        ==========================================================-->
         <div class="cover">
-            <div class="logo">RepoAudit</div>
-            <h1 class="repo-name">{{ repo.name if repo else 'Unknown Repository' }}</h1>
-            <p class="repo-path">{{ repo.owner if repo else '' }}/{{ repo.name if repo else '' }}</p>
-            
-            <div class="score-block">
-                <span class="score-label">Overall Score</span>
-                <span class="score-value {% if run.overall_score is not none and run.overall_score >= 80 %}score-ready{% elif run.overall_score is not none and run.overall_score >= 50 %}score-needs{% elif run.overall_score is not none %}score-not{% else %}score-na{% endif %}">
-                    {{ run.overall_score if run.overall_score is not none else '--' }}
-                </span>
+            <div class="cover-top">
+                <div class="cover-wordmark">RepoAudit</div>
+                <div class="cover-doctype">
+                    <div class="small-caps-label">Repository Audit Report</div>
+                </div>
             </div>
-            
-            <p class="verdict">{{ run.overall_verdict or '--' }}</p>
-            
-            <div class="meta">
-                <span class="meta-item">
-                    <span class="meta-label">Pillars</span>
-                    <span>{{ run.pillars_completed }}</span>
-                </span>
-                <span class="meta-item">
-                    <span class="meta-label">Analyzed</span>
-                    <span>{{ run.started_at.strftime('%Y-%m-%d %H:%M UTC') if run.started_at else 'unknown' }}</span>
-                </span>
-                <span class="meta-item">
-                    <span class="meta-label">Generated</span>
-                    <span>{{ run.completed_at.strftime('%Y-%m-%d %H:%M UTC') if run.completed_at else 'now' }}</span>
-                </span>
+
+            <div class="cover-body">
+                <div class="cover-eyebrow">Five-Pillar Technical Audit</div>
+                <h1 class="cover-title">{{ repo.name if repo else 'Unknown Repository' }}</h1>
+                <div class="cover-subtitle">{{ repo.owner if repo else '' }}/{{ repo.name if repo else '' }}</div>
+
+                {% set score_class = 'na' %}
+                {% set status_dot = 'na' %}
+                {% if run.overall_score is not none and run.overall_score >= 80 %}{% set score_class = 'ready' %}{% set status_dot = 'ready' %}
+                {% elif run.overall_score is not none and run.overall_score >= 50 %}{% set score_class = 'needs' %}{% set status_dot = 'needs' %}
+                {% elif run.overall_score is not none %}{% set score_class = 'not' %}{% set status_dot = 'not' %}{% endif %}
+
+                <div class="cover-verdict-block">
+                    <div>
+                        <span class="cover-score score-{{ score_class }}">{{ run.overall_score if run.overall_score is not none else '--' }}</span><span class="cover-score-suffix"> / 100</span>
+                    </div>
+                    <div class="cover-verdict-text">
+                        <span class="cover-verdict-status status-dot-{{ status_dot }}"></span>{{ run.overall_verdict or 'No verdict available' }}
+                    </div>
+                </div>
+
+                <div class="cover-meta">
+                    <div class="cover-meta-item">
+                        <span class="small-caps-label">Pillars Completed</span>
+                        <div class="value">{{ run.pillars_completed }}</div>
+                    </div>
+                    <div class="cover-meta-item">
+                        <span class="small-caps-label">Analyzed</span>
+                        <div class="value">{{ run.started_at.strftime('%d %b %Y, %H:%M UTC') if run.started_at else 'Unknown' }}</div>
+                    </div>
+                    <div class="cover-meta-item">
+                        <span class="small-caps-label">Report Generated</span>
+                        <div class="value">{{ run.completed_at.strftime('%d %b %Y, %H:%M UTC') if run.completed_at else 'Just now' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cover-footer">
+                <p>Generated automatically by RepoAudit through static analysis. This report reflects the state of the public repository at the time of analysis and is intended as an informational aid, not a certification.</p>
+                <div class="report-id">Run ID<br>{{ run.id }}</div>
             </div>
         </div>
 
-        <!-- Executive Summary -->
-        <div class="section">
-            <h2 class="section-title">Executive Summary</h2>
-            <p class="section-subtitle">Five-pillar audit: Code Evaluation, Security, Documentation, Production Readiness, Semantic Analysis.</p>
-            
-            <div class="pillar-overview" aria-label="Pillar score overview">
-                {% set pillar_labels = {'Code Evaluation': 'Code', 'Security': 'Security', 'Documentation': 'Docs', 'Production Readiness': 'Prod', 'Semantic Analysis': 'Semantic'} %}
+        <!-- =========================================================
+             TABLE OF CONTENTS + METHODOLOGY
+        ==========================================================-->
+        <div class="toc">
+            <h2>Contents</h2>
+            <ul class="toc-list">
+                <li><span class="toc-num">01</span><span class="toc-label">Executive Summary</span></li>
                 {% set pillar_order = ['Code Evaluation', 'Security', 'Documentation', 'Production Readiness', 'Semantic Analysis'] %}
                 {% for name in pillar_order %}
-                    {% set pillar = pillars | selectattr('name', 'equalto', name) | first %}
-                    {% if pillar %}
-                        {% set score = pillar.score if pillar.score is not none else 'N/A' %}
-                        {% set score_class = 'na' %}
-                        {% if pillar.score is not none and pillar.score >= 80 %}{% set score_class = 'ready' %}
-                        {% elif pillar.score is not none and pillar.score >= 50 %}{% set score_class = 'needs' %}
-                        {% elif pillar.score is not none %}{% set score_class = 'not' %}{% endif %}
-                        <div class="pillar-overview-item">
-                            <div class="pillar-overview-label">{{ pillar_labels[name] }}</div>
-                            <div class="pillar-overview-score {{ score_class }}">{{ score }}</div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            <div class="severity-summary" aria-label="Findings severity summary">
-                {% set counts = {'high': 0, 'medium': 0, 'low': 0, 'info': 0} %}
-                {% for pillar in pillars %}
-                    {% for f in pillar.findings %}
-                        {% if f.severity in counts %}
-                            {% set _ = counts.update({f.severity: counts[f.severity] + 1}) %}
-                        {% endif %}
-                    {% endfor %}
-                {% endfor %}
-                {% set total = counts.high + counts.medium + counts.low + counts.info %}
-                <span class="severity-summary-label">Findings</span>
-                {% if total == 0 %}
-                    <span class="severity-summary-item"><span class="severity-summary-text">No findings</span></span>
-                {% else %}
-                    {% if counts.high > 0 %}
-                    <span class="severity-summary-item severity-summary-high"><span class="severity-summary-count">{{ counts.high }}</span><span class="severity-summary-text">High</span></span>
-                    {% endif %}
-                    {% if counts.medium > 0 %}
-                    <span class="severity-summary-item severity-summary-medium"><span class="severity-summary-count">{{ counts.medium }}</span><span class="severity-summary-text">Medium</span></span>
-                    {% endif %}
-                    {% if counts.low > 0 %}
-                    <span class="severity-summary-item severity-summary-low"><span class="severity-summary-count">{{ counts.low }}</span><span class="severity-summary-text">Low</span></span>
-                    {% endif %}
-                    {% if counts.info > 0 %}
-                    <span class="severity-summary-item severity-summary-info"><span class="severity-summary-count">{{ counts.info }}</span><span class="severity-summary-text">Info</span></span>
-                    {% endif %}
+                {% set pillar = pillars | selectattr('name', 'equalto', name) | first %}
+                {% if pillar %}
+                <li>
+                    <span class="toc-num">{{ '%02d'|format(loop.index + 1) }}</span>
+                    <span class="toc-label">{{ name }}</span>
+                    <span class="toc-sub">Tier {{ pillar.tier }} &middot; {{ pillar.status.capitalize() }}</span>
+                </li>
                 {% endif %}
+                {% endfor %}
+            </ul>
+
+            <div class="about-block">
+                <h3>About This Report</h3>
+                <p>RepoAudit evaluates a public GitHub repository against five independent pillars — semantic architecture, code quality, security, documentation, and production readiness — combining deterministic static-analysis tooling with model-assisted review. The repository's own code is never executed, built, or installed; every finding below is produced through static inspection only. Findings are grouped by message and file to avoid repetition; the occurrence count reflects how many locations share a given finding.</p>
             </div>
         </div>
 
-        <!-- Pillar Sections -->
+        <!-- =========================================================
+             EXECUTIVE SUMMARY
+        ==========================================================-->
+        <div class="section">
+            <div class="section-eyebrow">01</div>
+            <h2 class="section-title">Executive Summary</h2>
+            <p class="section-subtitle">Overall verdict and findings distribution across all completed pillars.</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Pillar</th>
+                        <th>Tier</th>
+                        <th>Status</th>
+                        <th style="text-align:right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set pillar_order = ['Code Evaluation', 'Security', 'Documentation', 'Production Readiness', 'Semantic Analysis'] %}
+                    {% for name in pillar_order %}
+                        {% set pillar = pillars | selectattr('name', 'equalto', name) | first %}
+                        {% if pillar %}
+                            {% set score_class = 'na' %}
+                            {% set dot = 'na' %}
+                            {% if pillar.score is not none and pillar.score >= 80 %}{% set score_class = 'ready' %}{% set dot = 'ready' %}
+                            {% elif pillar.score is not none and pillar.score >= 50 %}{% set score_class = 'needs' %}{% set dot = 'needs' %}
+                            {% elif pillar.score is not none %}{% set score_class = 'not' %}{% set dot = 'not' %}{% endif %}
+                            <tr>
+                                <td>{{ name }}</td>
+                                <td class="status-text">Tier {{ pillar.tier }}</td>
+                                <td class="status-text"><span class="status-dot status-dot-{{ dot }}"></span>{{ pillar.status.capitalize() }}</td>
+                                <td class="num-cell score-{{ score_class }}" style="text-align:right;">{{ pillar.score if pillar.score is not none else 'N/A' }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% set counts = {'high': 0, 'medium': 0, 'low': 0, 'info': 0} %}
+            {% for pillar in pillars %}
+                {% for f in pillar.findings %}
+                    {% if f.severity in counts %}
+                        {% set _ = counts.update({f.severity: counts[f.severity] + 1}) %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            {% set total = counts.high + counts.medium + counts.low + counts.info %}
+
+            {% if total == 0 %}
+                <p class="muted">No findings were raised across any completed pillar.</p>
+            {% else %}
+                <div class="severity-summary">
+                    {% if counts.high > 0 %}
+                    <div class="severity-summary-item sev-high"><span class="severity-summary-count">{{ counts.high }}</span><span class="severity-summary-label">High</span></div>
+                    {% endif %}
+                    {% if counts.medium > 0 %}
+                    <div class="severity-summary-item sev-medium"><span class="severity-summary-count">{{ counts.medium }}</span><span class="severity-summary-label">Medium</span></div>
+                    {% endif %}
+                    {% if counts.low > 0 %}
+                    <div class="severity-summary-item sev-low"><span class="severity-summary-count">{{ counts.low }}</span><span class="severity-summary-label">Low</span></div>
+                    {% endif %}
+                    {% if counts.info > 0 %}
+                    <div class="severity-summary-item sev-info"><span class="severity-summary-count">{{ counts.info }}</span><span class="severity-summary-label">Info</span></div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- =========================================================
+             PILLAR SECTIONS
+        ==========================================================-->
         {% set pillar_order = ['Code Evaluation', 'Security', 'Documentation', 'Production Readiness', 'Semantic Analysis'] %}
         {% for name in pillar_order %}
             {% set pillar = pillars | selectattr('name', 'equalto', name) | first %}
             {% if pillar %}
-            <div class="section pillar-section avoid-break">
-                <h2 class="section-title">{{ name }}</h2>
-                
-                <div class="pillar-header">
-                    <span class="pillar-name">{{ name }}</span>
-                    <div class="pillar-meta">
-                        <span class="pillar-score {% if pillar.score is not none and pillar.score >= 80 %}score-ready{% elif pillar.score is not none and pillar.score >= 50 %}score-needs{% elif pillar.score is not none %}score-not{% else %}score-na{% endif %}">
-                            {{ pillar.score if pillar.score is not none else 'N/A' }}
-                        </span>
-                        <span class="tier-badge tier-{{ pillar.tier }}">Tier {{ pillar.tier }}</span>
-                        <span class="status-badge status-{{ pillar.status }}">{{ pillar.status.capitalize() }}</span>
+            {% set score_class = 'na' %}
+            {% if pillar.score is not none and pillar.score >= 80 %}{% set score_class = 'ready' %}
+            {% elif pillar.score is not none and pillar.score >= 50 %}{% set score_class = 'needs' %}
+            {% elif pillar.score is not none %}{% set score_class = 'not' %}{% endif %}
+            <div class="pillar-section">
+                <div class="pillar-kicker">
+                    <span class="pillar-number">{{ '%02d'|format(loop.index + 1) }}</span>
+                    <h2 class="pillar-title">{{ name }}</h2>
+                </div>
+
+                <div class="pillar-statline">
+                    <div class="pillar-stat">
+                        <span class="small-caps-label">Score</span>
+                        <div class="value score score-{{ score_class }}">{{ pillar.score if pillar.score is not none else 'N/A' }}</div>
+                    </div>
+                    <div class="pillar-stat">
+                        <span class="small-caps-label">Tier</span>
+                        <div class="value">Tier {{ pillar.tier }}</div>
+                    </div>
+                    <div class="pillar-stat">
+                        <span class="small-caps-label">Status</span>
+                        <div class="value">{{ pillar.status.capitalize() }}</div>
+                    </div>
+                    <div class="pillar-stat">
+                        <span class="small-caps-label">Findings</span>
+                        <div class="value">{{ pillar.findings|length }} total, {{ pillar.grouped_findings|length }} unique</div>
                     </div>
                 </div>
 
-                <div class="pillar-plain-summary">{{ pillar.plain_summary }}</div>
-                <div class="pillar-summary">{{ pillar.summary or 'No summary available' }}</div>
-
-                <div class="findings-section">
-                    <h4 class="findings-title">Findings ({{ pillar.findings|length }} total, {{ pillar.grouped_findings|length }} unique)</h4>
-                    {% set grouped = pillar.grouped_findings %}
-                    {% if grouped|length == 0 %}
-                        <p class="no-findings">No findings</p>
-                    {% else %}
-                        <div class="findings-list">
-                            {% for g in grouped %}
-                            <div class="finding-group finding-group-{{ g.severity }} avoid-break">
-                                <div class="finding-group-header">
-                                    <div class="finding-group-message">{{ g.message }}</div>
-                                    <div class="finding-group-meta">
-                                        <span class="finding-group-severity">{{ g.severity }}</span>
-                                        <span class="finding-group-count">{{ g.count }} occurrence{{ 's' if g.count > 1 else '' }}</span>
-                                    </div>
-                                </div>
-                                <div class="finding-group-files">
-                                    {% for f in g.files %}
-                                    <div class="finding-group-file">
-                                        {{ f.path }}{% if f.line %}<span class="finding-group-file-line">:{{ f.line }}</span>{% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                {% if pillar.plain_summary %}
+                <div class="pillar-plain-summary">
+                    <p>{{ pillar.plain_summary }}</p>
                 </div>
+                {% endif %}
+
+                <p class="pillar-summary">{{ pillar.summary or 'No summary available.' }}</p>
+
+                <div class="findings-heading">Findings</div>
+                {% set grouped = pillar.grouped_findings %}
+                {% if grouped|length == 0 %}
+                    <p class="no-findings">No findings for this pillar.</p>
+                {% else %}
+                    <table class="findings-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Finding</th>
+                                <th style="text-align:right;">Occurrences</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in grouped %}
+                            <tr class="finding-row">
+                                <td><span class="sev-label {{ g.severity }}">{{ g.severity }}</span></td>
+                                <td>
+                                    <p class="finding-message">{{ g.message }}</p>
+                                    {% if g.files %}
+                                    <div class="finding-files">
+                                        {% for f in g.files %}<span>{{ f.path }}{% if f.line %}:{{ f.line }}{% endif %}</span>{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="finding-count" style="text-align:right;">{{ g.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
             {% endif %}
         {% endfor %}
 
-        <!-- Footer -->
-        <div class="footer">
-            RepoAudit Report — {{ repo.name if repo else 'Unknown' }} — {{ run.pillars_completed }} — Generated {{ run.completed_at.strftime('%Y-%m-%d %H:%M UTC') if run.completed_at else 'unknown time' }}
+        <!-- =========================================================
+             CLOSING / DISCLAIMER
+        ==========================================================-->
+        <div class="closing">
+            <h2>Report Notes</h2>
+            <p>This report was produced by an automated pipeline combining deterministic static-analysis tooling with model-assisted review. It reflects a point-in-time snapshot of the repository's default branch and does not account for changes made after analysis began.</p>
+
+            <div class="disclaimer">
+                <span class="small-caps-label">Disclaimer</span>
+                <p>Findings are generated automatically and may include false positives or omissions. This report is an informational aid intended to support, not replace, human code review, security assessment, and engineering judgment. No warranty is made as to the completeness or accuracy of the analysis.</p>
+            </div>
         </div>
+
     </div>
 </body>
 </html>

@@ -277,7 +277,7 @@ async def export_json(run_id: int):
         
         return JSONResponse(
             content=export_data,
-            headers={"Content-Disposition": f"attachment; filename=repoaudit-{run_id}.json"}
+            headers={"Content-Disposition": f"attachment; filename={repo.name}-audit-report.json" if repo else f"attachment; filename=repoaudit-{run_id}.json"}
         )
 
 
@@ -325,7 +325,7 @@ async def export_html(run_id: int, request: Request):
                 "repo": repo,
                 "pillars": pillars_data,
             },
-            headers={"Content-Disposition": f"attachment; filename=repoaudit-{run_id}.html"}
+            headers={"Content-Disposition": f"attachment; filename={repo.name}-audit-report.html" if repo else f"attachment; filename=repoaudit-{run_id}.html"}
         )
 
 
@@ -402,7 +402,7 @@ async def export_pdf(run_id: int, request: Request):
             return FileResponse(
                 pdf_path,
                 media_type="application/pdf",
-                filename=f"repoaudit-{run_id}.pdf",
+                filename=f"{repo.name}-audit-report.pdf" if repo else f"repoaudit-{run_id}.pdf",
                 background=lambda: os.unlink(pdf_path)
             )
         except Exception as e:
