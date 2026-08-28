@@ -2,6 +2,7 @@ import subprocess
 import json
 import os
 import re
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -60,12 +61,14 @@ class SecurityPillar(Pillar):
 
     def _run_bandit(self, repo_path: Path, timeout_s: int) -> List[Finding]:
         findings = []
+        start = time.time()
         try:
             # Use -q to suppress INFO logs that corrupt JSON output
             result = subprocess.run(
                 ["bandit", "-r", "-f", "json", "-q", str(repo_path)],
                 capture_output=True, text=True, timeout=timeout_s
             )
+            print(f"[SecurityPillar] Bandit completed in {time.time() - start:.1f}s")
             if result.stdout and result.stdout.strip():
                 try:
                     data = json.loads(result.stdout)
@@ -140,6 +143,7 @@ class SecurityPillar(Pillar):
 
     def _run_semgrep(self, repo_path: Path, timeout_s: int, language: str) -> List[Finding]:
         findings = []
+        start = time.time()
         try:
             config = "p/security-audit" if language == "python" else "p/security-audit"
             result = subprocess.run(
@@ -147,6 +151,7 @@ class SecurityPillar(Pillar):
                 capture_output=True, text=True, timeout=timeout_s,
                 env={**os.environ, "SEMGREP_ENABLE_VERSION_CHECK": "0", "SEMGREP_SEND_METRICS": "off"}
             )
+            print(f"[SecurityPillar] Semgrep ({language}) completed in {time.time() - start:.1f}s")
             if result.stdout:
                 data = json.loads(result.stdout)
                 for result_item in data.get("results", []):
@@ -172,12 +177,14 @@ class SecurityPillar(Pillar):
         if not package_json.exists():
             return findings
         
+        start = time.time()
         try:
             result = subprocess.run(
                 ["npm", "audit", "--json"],
                 capture_output=True, text=True, timeout=timeout_s,
                 cwd=str(repo_path)
             )
+            print(f"[SecurityPillar] npm audit completed in {time.time() - start:.1f}s")
             if result.stdout:
                 data = json.loads(result.stdout)
                 for vuln in data.get("vulnerabilities", {}).values():
@@ -197,11 +204,13 @@ class SecurityPillar(Pillar):
 
     def _run_trivy(self, repo_path: Path, timeout_s: int) -> List[Finding]:
         findings = []
+        start = time.time()
         try:
             result = subprocess.run(
                 ["trivy", "fs", "--format", "json", "--quiet", str(repo_path)],
                 capture_output=True, text=True, timeout=timeout_s
             )
+            print(f"[SecurityPillar] Trivy completed in {time.time() - start:.1f}s")
             if result.stdout:
                 data = json.loads(result.stdout)
                 for target in data.get("Results", []):
