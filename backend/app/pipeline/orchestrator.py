@@ -80,7 +80,7 @@ async def run_analysis_pipeline(run_id: int, repo_url: str, confirm: bool = Fals
         default_timeout = int(os.getenv("PILLAR_TIMEOUT", "60"))
         pillar_timeouts = {
             "Code Evaluation": default_timeout,
-            "Security": default_timeout,
+            "Security": int(os.getenv("SECURITY_PILLAR_TIMEOUT", "180")),
             "Documentation": default_timeout,
             "Production Readiness": default_timeout,
             "Semantic Analysis": 90,
