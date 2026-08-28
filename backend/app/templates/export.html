@@ -730,6 +730,11 @@
             </div>
             <div class="verdict">{{ run.overall_verdict or '--' }}</div>
             <div class="pillars-completed">Pillars completed: {{ run.pillars_completed }}</div>
+            <div class="export-links" style="margin-top: var(--spacing-16); display: flex; gap: var(--spacing-12); justify-content: center; flex-wrap: wrap;">
+                <a href="/analysis/{{ run.id }}/export.html" class="btn btn-ghost">Export HTML</a>
+                <a href="/analysis/{{ run.id }}/export.json" class="btn btn-ghost">Export JSON</a>
+                <a href="/analysis/{{ run.id }}/export.pdf" class="btn btn-primary">Export PDF</a>
+            </div>
         </div>
 
         <nav class="pillar-nav" aria-label="Pillar navigation">

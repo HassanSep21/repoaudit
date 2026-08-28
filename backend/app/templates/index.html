@@ -1320,6 +1320,11 @@
                 <div class="verdict" id="overallVerdict">Analyzing pillars...</div>
                 <div class="pillars-completed" id="pillarsCompleted">Pillars completed: 0/5</div>
                 <div class="repo-identity" id="repoIdentity"></div>
+                <div class="export-links" id="exportLinks" style="margin-top: var(--spacing-16); display: flex; gap: var(--spacing-12); justify-content: center; flex-wrap: wrap;">
+                    <a href="#" class="btn btn-ghost" id="exportHtmlBtn">Export HTML</a>
+                    <a href="#" class="btn btn-ghost" id="exportJsonBtn">Export JSON</a>
+                    <a href="#" class="btn btn-primary" id="exportPdfBtn">Export PDF</a>
+                </div>
             </div>
 
             <nav class="pillar-nav" id="pillarNav" aria-label="Pillar navigation"></nav>
@@ -1466,6 +1471,11 @@
 
             document.getElementById('overallVerdict').textContent = data.overall_verdict || '--';
             document.getElementById('pillarsCompleted').textContent = `Pillars completed: ${data.pillars_completed}`;
+
+            // Update export links with current run ID
+            document.getElementById('exportHtmlBtn').href = `/analysis/${currentRunId}/export.html`;
+            document.getElementById('exportJsonBtn').href = `/analysis/${currentRunId}/export.json`;
+            document.getElementById('exportPdfBtn').href = `/analysis/${currentRunId}/export.pdf`;
 
             // Set repo identity
             const repoUrl = document.getElementById('repoUrl').value.trim();
