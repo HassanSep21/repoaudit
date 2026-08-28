@@ -329,11 +329,6 @@ async def export_html(run_id: int, request: Request):
         )
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
 # PDF Export endpoint
 @app.get("/analysis/{run_id}/export.pdf")
 async def export_pdf(run_id: int, request: Request):
@@ -414,3 +409,8 @@ async def export_pdf(run_id: int, request: Request):
             if os.path.exists(pdf_path):
                 os.unlink(pdf_path)
             raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
