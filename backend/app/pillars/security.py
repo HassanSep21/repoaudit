@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
-from app.pillars.base import Pillar, PillarResult, Finding
+from app.pillars.base import Pillar, PillarResult, Finding, normalize_file_paths
 
 
 class SecurityPillar(Pillar):
@@ -35,6 +35,9 @@ class SecurityPillar(Pillar):
             findings.extend(self._run_semgrep(repo_path, timeout_s, "javascript"))
 
         findings.extend(self._run_trivy(repo_path, timeout_s))
+
+        # Normalize file paths to be relative to repo root
+        findings = normalize_file_paths(findings, repo_path)
 
         score = self._calculate_score(findings)
 

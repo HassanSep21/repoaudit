@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from app.pillars.base import Pillar, PillarResult, Finding
+from app.pillars.base import Pillar, PillarResult, Finding, normalize_file_paths
 
 
 class DocumentationPillar(Pillar):
@@ -26,6 +26,9 @@ class DocumentationPillar(Pillar):
         findings.extend(self._check_setup_instructions(repo_path))
         findings.extend(self._check_comment_density(repo_path, python_files, js_ts_files))
         findings.extend(self._check_api_docs(repo_path, python_files, js_ts_files))
+
+        # Normalize file paths to be relative to repo root
+        findings = normalize_file_paths(findings, repo_path)
 
         score = self._calculate_score(findings)
 

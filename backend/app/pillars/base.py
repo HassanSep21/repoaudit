@@ -31,6 +31,46 @@ class Pillar(ABC):
         ...
 
 
+def normalize_file_paths(findings: List[Finding], repo_path: Path) -> List[Finding]:
+    """
+    Convert absolute file paths to paths relative to the repo root.
+    This strips the temp directory prefix so reports show clean repo-relative paths.
+    """
+    repo_path = repo_path.resolve()
+    normalized = []
+    for finding in findings:
+        file_path = finding.file_path
+        if file_path is None:
+            normalized.append(finding)
+            continue
+        try:
+            abs_path = Path(file_path).resolve()
+            # Only strip if path is under repo_path
+            if abs_path.is_relative_to(repo_path):
+                rel_path = abs_path.relative_to(repo_path)
+                normalized.append(Finding(
+                    severity=finding.severity,
+                    category=finding.category,
+                    message=finding.message,
+                    file_path=str(rel_path),
+                    line=finding.line,
+                ))
+            else:
+                normalized.append(finding)
+        except Exception:
+            # If any error, keep original
+            normalized.append(finding)
+    return normalized
+
+
+class Pillar(ABC):
+    name: str
+    
+    @abstractmethod
+    def run(self, repo_path: Path, *, timeout_s: int) -> PillarResult:
+        ...
+
+
 def run_pillar_cli(pillar_class, repo_path: str, timeout_s: int = 60):
     """CLI entry point for running a pillar standalone during development."""
     import json

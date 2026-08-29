@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from app.pillars.base import Pillar, PillarResult, Finding
+from app.pillars.base import Pillar, PillarResult, Finding, normalize_file_paths
 
 
 class CodeEvaluationPillar(Pillar):
@@ -35,6 +35,9 @@ class CodeEvaluationPillar(Pillar):
         
         # Calculate score using shared formula (D18)
         score = self._calculate_score(findings)
+        
+        # Normalize file paths to be relative to repo root
+        findings = normalize_file_paths(findings, repo_path)
         
         # Generate summary
         lang_parts = []

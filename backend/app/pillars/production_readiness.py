@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import List, Optional
 
-from app.pillars.base import Pillar, PillarResult, Finding
+from app.pillars.base import Pillar, PillarResult, Finding, normalize_file_paths
 
 
 class ProductionReadinessPillar(Pillar):
@@ -29,6 +29,9 @@ class ProductionReadinessPillar(Pillar):
         findings.extend(self._check_license(repo_path))
         findings.extend(self._check_dockerfile(repo_path))
         findings.extend(self._check_health_checks(repo_path))
+
+        # Normalize file paths to be relative to repo root
+        findings = normalize_file_paths(findings, repo_path)
 
         score = self._calculate_score(findings)
 
