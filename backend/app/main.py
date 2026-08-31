@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -331,7 +331,7 @@ async def export_html(run_id: int, request: Request):
 
 # PDF Export endpoint
 @app.get("/analysis/{run_id}/export.pdf")
-async def export_pdf(run_id: int, request: Request):
+async def export_pdf(run_id: int, request: Request, background_tasks: BackgroundTasks):
     """Export analysis report as PDF using Playwright/Chromium with dedicated print template."""
     from playwright.async_api import async_playwright
     import tempfile
@@ -399,11 +399,12 @@ async def export_pdf(run_id: int, request: Request):
                 )
                 await browser.close()
             
+            background_tasks.add_task(os.unlink, pdf_path)
+            
             return FileResponse(
                 pdf_path,
                 media_type="application/pdf",
                 filename=f"{repo.name}-audit-report.pdf" if repo else f"repoaudit-{run_id}.pdf",
-                background=lambda: os.unlink(pdf_path)
             )
         except Exception as e:
             if os.path.exists(pdf_path):

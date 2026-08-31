@@ -1727,6 +1727,10 @@
 
         function buildPillarOverview(pillars) {
             const overview = document.getElementById('pillarOverview');
+            if (!pillars || pillars.length === 0) {
+                overview.innerHTML = '<span class="severity-summary-label">Pillars</span><span class="severity-summary-text">No pillar data available</span>';
+                return;
+            }
             const pillarOrder = ['Code Evaluation', 'Security', 'Documentation', 'Production Readiness', 'Semantic Analysis'];
             const pillarLabels = {
                 'Code Evaluation': 'Code',
@@ -1737,6 +1741,7 @@
             };
             overview.innerHTML = pillarOrder.map(name => {
                 const pillar = pillars.find(p => p.name === name);
+                if (!pillar) return '';
                 const score = pillar.score !== null ? pillar.score : 'N/A';
                 let scoreClass = 'na';
                 if (typeof pillar.score === 'number') {
@@ -1755,8 +1760,13 @@
 
         function buildSeveritySummary(pillars) {
             const summary = document.getElementById('severitySummary');
+            if (!pillars || pillars.length === 0) {
+                summary.innerHTML = '<span class="severity-summary-label">Findings</span><span class="severity-summary-item"><span class="severity-summary-text">No findings</span></span>';
+                return;
+            }
             const counts = { high: 0, medium: 0, low: 0, info: 0 };
             pillars.forEach(pillar => {
+                if (!pillar.findings) return;
                 pillar.findings.forEach(f => {
                     if (counts[f.severity] !== undefined) {
                         counts[f.severity]++;
