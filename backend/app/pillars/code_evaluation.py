@@ -129,6 +129,15 @@ class CodeEvaluationPillar(Pillar):
                 ["eslint", "--format=json", str(repo_path)],
                 capture_output=True, text=True, timeout=timeout_s
             )
+            if result.returncode != 0 and result.stderr:
+                findings.append(Finding(
+                    severity="medium",
+                    category="tool_error",
+                    message=f"ESLint error: {result.stderr[:200]}",
+                    file_path=None,
+                    line=None,
+                ))
+                return findings
             if result.stdout:
                 data = json.loads(result.stdout)
                 for file_result in data:
@@ -143,8 +152,8 @@ class CodeEvaluationPillar(Pillar):
                         ))
         except subprocess.TimeoutExpired:
             findings.append(Finding(severity="high", category="tool_timeout", message="ESLint timed out"))
-        except Exception:
-            pass
+        except Exception as e:
+            findings.append(Finding(severity="medium", category="tool_error", message=f"ESLint failed: {e}"))
         return findings
     
     def _run_tier2_cloc(self, repo_path: Path, timeout_s: int) -> PillarResult:

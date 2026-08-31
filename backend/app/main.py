@@ -138,7 +138,7 @@ async def start_analysis(request: Request):
     try:
         with get_db() as db:
             # Parse owner/repo from URL
-            url_clean = url.rstrip(".git")
+            url_clean = url.removesuffix(".git")
             parts = url_clean.split("/")
             owner = parts[-2]
             name = parts[-1]

@@ -8,7 +8,7 @@ from app.models.schema import Repo
 
 GITHUB_API_BASE = "https://api.github.com"
 MAX_REPO_SIZE_KB = 500 * 1024  # 500MB
-MAX_ARCHIVE_SIZE_KB = 5 * 1024  # 5MB
+MAX_ARCHIVE_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
 
 # User-friendly error messages
 SIZE_LIMIT_ERROR = (
@@ -37,7 +37,7 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
     Returns path to temp directory containing cloned repo.
     """
     # Parse owner/repo from URL
-    url_clean = repo_url.rstrip(".git")
+    url_clean = repo_url.removesuffix(".git")
     parts = url_clean.split("/")
     owner = parts[-2]
     name = parts[-1]
@@ -75,10 +75,10 @@ def fetch_repo(repo_url: str, confirm: bool = False) -> str:
     
     archive_files = []
     for item in tree_data:
-        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
+        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_BYTES:
             for ext in ARCHIVE_EXTENSIONS:
                 if item["path"].endswith(ext):
-                    archive_files.append(f"{item['path']} ({item['size']} KB)")
+                    archive_files.append(f"{item['path']} ({item['size'] / 1024:.0f} KB)")
                     break
     
     if archive_files and not confirm:
@@ -106,7 +106,7 @@ def precheck_repo(repo_url: str, confirm: bool = False) -> None:
     Raises RuntimeError for other errors (size limit, not found, etc.).
     """
     # Parse owner/repo from URL
-    url_clean = repo_url.rstrip(".git")
+    url_clean = repo_url.removesuffix(".git")
     parts = url_clean.split("/")
     owner = parts[-2]
     name = parts[-1]
@@ -139,10 +139,10 @@ def precheck_repo(repo_url: str, confirm: bool = False) -> None:
     
     archive_files = []
     for item in tree_resp.json().get("tree", []):
-        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_KB:
+        if item.get("type") == "blob" and item.get("size", 0) > MAX_ARCHIVE_SIZE_BYTES:
             for ext in ARCHIVE_EXTENSIONS:
                 if item["path"].endswith(ext):
-                    archive_files.append(f"{item['path']} ({item['size']} KB)")
+                    archive_files.append(f"{item['path']} ({item['size'] / 1024:.0f} KB)")
                     break
     
     if archive_files and not confirm:

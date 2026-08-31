@@ -218,7 +218,8 @@ class SecurityPillar(Pillar):
                 data = json.loads(result.stdout)
                 for target in data.get("Results", []):
                     for vuln in target.get("Vulnerabilities", []):
-                        severity = vuln.get("Severity", "LOW").lower()
+                        trivy_severity = vuln.get("Severity", "UNKNOWN")
+                        severity = self._map_trivy_severity(trivy_severity)
                         findings.append(Finding(
                             severity=severity,
                             category="trivy",
@@ -228,8 +229,8 @@ class SecurityPillar(Pillar):
                         ))
         except subprocess.TimeoutExpired:
             findings.append(Finding(severity="high", category="tool_timeout", message="Trivy timed out"))
-        except Exception:
-            pass
+        except Exception as e:
+            findings.append(Finding(severity="medium", category="tool_error", message=f"Trivy failed: {e}"))
         return findings
 
     def _run_tier2_cloc(self, repo_path: Path, timeout_s: int) -> PillarResult:
@@ -264,6 +265,18 @@ class SecurityPillar(Pillar):
             summary="Tier-2 (best-effort) analysis: basic cloc metrics only. No Tier-1 language detected.",
             findings=findings,
         )
+
+    def _map_trivy_severity(self, severity: str) -> str:
+        """Map Trivy severity levels to app's severity scale."""
+        # Trivy: CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN
+        mapping = {
+            "CRITICAL": "high",
+            "HIGH": "high",
+            "MEDIUM": "medium",
+            "LOW": "low",
+            "UNKNOWN": "info",
+        }
+        return mapping.get(severity.upper(), "info")
 
     def _map_bandit_severity(self, severity: str) -> str:
         return {"HIGH": "high", "MEDIUM": "medium", "LOW": "low"}.get(severity.upper(), "low")
